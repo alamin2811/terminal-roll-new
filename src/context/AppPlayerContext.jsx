@@ -1,8 +1,8 @@
 // src/context/AppPlayerContext.jsx
 import { createContext, useContext } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { usePlayer } from "../Hooks/usePlayer";
-import { useTerminalWallet } from "../Hooks/useTerminalWallet";
+import { usePlayer } from "../hooks/usePlayer";
+import { useTerminalWallet } from "../hooks/useTerminalWallet";
 //import { getWalletAddress } from "../lib/solanaProvider";
 
 const AppPlayerContext = createContext(null);
