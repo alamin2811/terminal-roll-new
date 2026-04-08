@@ -48,7 +48,7 @@ const SelectGameStyle = styled.div`
             margin-bottom: 10px;
         }
         h2{
-            font-family: Screwtop Regular;
+            font-family: 'screwtop-regular';
             font-weight: 400;
             font-size: 36px;
             line-height: 100%;
@@ -101,7 +101,7 @@ const SelectGameStyle = styled.div`
                 left: -1px;
             }
             h3{
-                font-family: Screwtop Regular;
+                font-family: 'screwtop-regular';
                 font-weight: 400;
                 font-size: 26px;
                 line-height: 100%;
@@ -154,7 +154,7 @@ const SelectGameStyle = styled.div`
                         color: #819E77;
                     }
                     h4{
-                        font-family: Screwtop Regular;
+                        font-family: 'screwtop-regular';
                         font-weight: 400;
                         font-size: 22px;
                         line-height: 154.54%;
@@ -195,7 +195,7 @@ const SelectGameStyle = styled.div`
                 text-decoration: none;
                 position: relative;
                 padding: 12px 30px;
-                font-family: Screwtop Regular;
+                font-family: 'screwtop-regular';
                 font-weight: 400;
                 font-size: 18px;
                 margin-top: 24px;
