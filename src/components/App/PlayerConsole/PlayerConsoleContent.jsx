@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import PlayerConsoleStyle from './PlayerConsole.style'
 import Identity from './Identity'
 import checkIcon from '../../../assets/images/icon/check.png'
-import { useTerminalWallet } from "../../../Hooks/useTerminalWallet";
+import { useTerminalWallet } from "../../../hooks/useTerminalWallet";
 import { usePlayerConsole } from "../../../hooks/usePlayerConsole";
 
 

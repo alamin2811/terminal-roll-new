@@ -24,8 +24,8 @@ import {
   useDisconnect,
 } from "@reown/appkit/react";
 import { getSolBalance } from "../../../../lib/solanaConnection";
-import { useTerminalWallet } from "../../../../Hooks/useTerminalWallet";
-import { usePlayer } from "../../../../Hooks/usePlayer";
+import { useTerminalWallet } from "../../../../hooks/useTerminalWallet";
+import { usePlayer } from "../../../../hooks/usePlayer";
 import { useAppPlayer } from "../../../../context/AppPlayerContext";
 import { getWalletAddress } from "../../../../lib/solanaProvider";
 

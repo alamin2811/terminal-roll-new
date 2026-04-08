@@ -5,7 +5,7 @@ import txShape from '../../../assets/images/shape/tx-shape.png'
 import LinkIcon from '../../../assets/images/icon/link.png'
 import Pagination from '../../Core/Pagination/Pagination'
 import { fetchTransactionsByPlayer } from "../../../services/transactions.api"
-import { usePlayer } from "../../../Hooks/usePlayer";
+import { usePlayer } from "../../../hooks/usePlayer";
 
 /*const transactions = [
     { id: '#TX001', date: '12 DEC, 2025 14:45', type: 'DEPOSIT', amount: '+0.50 SOL', status: 'completed' },
