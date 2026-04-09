@@ -8,6 +8,7 @@ import { rollPumpLoop } from "../../../../services/roll.api";
 import { useAppPlayer } from "../../../../context/AppPlayerContext";
 import RangeSlider from './RangeSlider/RangeSlider'
 import PumpLoopInfo from './PumpLoopInfo/PumpLoopInfo'
+import PumploopGraph from './PumploopGraph/PumploopGraph'
 
 const SPINNER_FRAMES = ["-", "\\", "|", "/"];
 
@@ -83,21 +84,22 @@ const getDelay = (line) => {
 const PumpLoop = () => {
     const terminalRef = useRef(null)
     const drawerRef = useRef(null)
-
     const [showInfo, setShowInfo] = useState(false)
     const [isRolling, setIsRolling] = useState(false)
     const spinnerRef = useRef(null)
     const [betSol, setBetSol] = useState(1.0025);
 
     const [lines, setLines] = useState([
-        `initiating pump_loop.exe`,
-        `mounting Pump.Fun launch engine`,
-        `wild 100x upside mode armed`,
-        `click to launch token`
+        // `initiating pump_loop.exe`,
+        // `mounting Pump.Fun launch engine`,
+        // `wild 100x upside mode armed`,
+        // `click to launch token`,
+        `initiating pumploop.exe`,
+        `loading entropy modules`,
+        `fetching server seed`,
+        `ready — set bet and launch token`,
     ])
-
     const { userWalletAddress, terminalWallet, refreshTerminalWallet } = useAppPlayer();
-
     const handleRoll = async () => {
         if (isRolling) return;
         setIsRolling(true);
@@ -131,10 +133,9 @@ const PumpLoop = () => {
 
             setLines(l => [
                 ...l,
-                `launch result: ${
-                    result.result === "win"
-                        ? `!!! WIN - ${result.payoutAmountSol} SOL paid !!!`
-                        : `MISS - token launch collapsed`
+                `launch result: ${result.result === "win"
+                    ? `!!! WIN - ${result.payoutAmountSol} SOL paid !!!`
+                    : `MISS - token launch collapsed`
                 }`,
                 `click to launch token`,
             ]);
@@ -157,7 +158,6 @@ const PumpLoop = () => {
             setIsRolling(false);
         }
     };
-
     const startSpinner = () => {
         let i = 0;
         spinnerRef.current = setInterval(() => {
@@ -169,24 +169,41 @@ const PumpLoop = () => {
             i++;
         }, 120);
     };
-
     const stopSpinner = () => {
         if (spinnerRef.current) {
             clearInterval(spinnerRef.current);
             spinnerRef.current = null;
         }
     };
-
     useEffect(() => {
         const el = terminalRef.current
         if (!el) return
         el.scrollTop = el.scrollHeight
     }, [])
 
+    const [isPumpRolling, setIsPumpRolling] = useState(false);
+    
+      const handleSellNow = () => {
+        setIsRolling(true);
+    
+        setTimeout(() => {
+          setIsRolling(false);
+        }, 3000);
+      };
+
+
     return (
         <>
             <BitFlipStyle>
-                <div className="bit-flip-top">
+                <div className="custom-container">
+                    <div className="page-links">
+                        <a href="/play-bit-flip" className='bitflip'>Bitflip</a>
+                        <a href="/play-cache-hunt" className='cacheundt'>CACHEHUNT</a>
+                        <a href="/play-pump-loop" className='active pumploop'>PUMPLOOP</a>
+                        <a href="/play-beat-the-bomb" className='beatbomb'>BEATBOMB</a>
+                    </div>
+                </div>
+                <div className="bit-flip-top pump-loop-top">
                     <div className="custom-container">
                         <div className="bit-flip-inner">
                             <div className="row">
@@ -236,17 +253,74 @@ const PumpLoop = () => {
                 <div className="bit-flip-bottom">
                     <div className="custom-container">
                         <div className="bit-flip-content">
+                            <div className="bit-flip-main-content cache-hunt-main-content">
+                                <div className="left">
+                                    <div className="terminal">
+                                        <Terminal lines={lines} />
+                                    </div>
 
-                            <Terminal lines={lines}/>
+                                    <PumploopGraph />
 
-                            <RangeSlider value={betSol} onChange={setBetSol}/>
+
+                                </div>
+                                <div className="right">
+                                    <div className="top">
+                                        <h6>Round Info</h6>
+                                        <ul>
+                                            <li><span>CURRENT WIN</span> <h4>14.06x</h4></li>
+                                            <li><span>MAX WIN</span> <strong>100x</strong></li>
+                                            <li><span>YOUR BET</span> <strong>0.058 SOL</strong></li>
+                                            <li><span>SELL NOW</span> <strong>0.815 SOL</strong></li>
+                                        </ul>
+                                    </div>
+                                    <div className="bottom">
+                                        <div className="pump-loop-progress-content">
+                                            <h6>PUMP PROGRESS</h6>
+                                            <div className="progress-bar">
+                                                <div className="progress progress-warning w-25"></div>
+                                            </div>
+                                            <div className="progress-value">
+                                                <span>14.63x</span>
+                                                <span>MAX 100x</span>
+                                            </div>
+                                        </div>
+                                        <div className="pump-loop-progress-content danger">
+                                            <h6>RISK LEVEL</h6>
+                                            <div className="progress-bar">
+                                                <div className="progress progress-danger w-30"></div>
+                                            </div>
+                                            <div className="progress-value">
+                                                <span>HIGH</span>
+                                                <span>EXTREME</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pump-loop-range-slider">
+                                <RangeSlider value={betSol} onChange={setBetSol} />
+                            </div>
 
                             <div className="terminal-btn">
-                                <button className="primary-btn lg roll-button hover-btn" onClick={handleRoll} disabled={isRolling}>
+                                <button
+                                    className="primary-btn pump-loop-main-btn lg roll-button hover-btn"
+                                    onClick={handleSellNow}
+                                    disabled={isPumpRolling}
+                                >
                                     <span className="btn-text">
-                                        <span><img src={RollIcon} alt="icon" />{isRolling ? "Launching Token..." : "Launch Token"}</span>
-                                        <span><img src={RollIcon} alt="icon" />{isRolling ? "Launching Token..." : "Launch Token"}</span>
+                                        <span>
+                                            {isPumpRolling
+                                                ? "Launching Token..."
+                                                : "▼ SELL NOW — 14.06x"}
+                                        </span>
+                                        <span>
+                                            {isPumpRolling
+                                                ? "Launching Token..."
+                                                : "▼ SELL NOW — 14.06x"}
+                                        </span>
                                     </span>
+
                                     <span className="btn-shape btn-shape1"></span>
                                     <span className="btn-shape btn-shape2"></span>
                                     <span className="btn-shape btn-shape3"></span>

@@ -192,10 +192,10 @@ const BitFlip = () => {
             <BitFlipStyle>
                 <div className="custom-container">
                     <div className="page-links">
-                        <a href="#" className='active bitflip'>Bitflip</a>
-                        <a href="#" className='cacheundt'>CACHEHUNT</a>
-                        <a href="#" className='pumploop'>PUMPLOOP</a>
-                        <a href="#" className='beatbomb'>BEATBOMB</a>
+                        <a href="/play-bit-flip" className='active bitflip'>Bitflip</a>
+                        <a href="/play-cache-hunt" className='cacheundt'>CACHEHUNT</a>
+                        <a href="/play-pump-loop" className='pumploop'>PUMPLOOP</a>
+                        <a href="/play-beat-the-bomb" className='beatbomb'>BEATBOMB</a>
                     </div>
                 </div>
                 {/* ================= TOP ================= */}

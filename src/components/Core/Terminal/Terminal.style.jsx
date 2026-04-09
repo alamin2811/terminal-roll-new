@@ -28,8 +28,13 @@ const TerminalStyle = styled.div`
     line-height: 1.7;
     width: 100%;
     color: #44FF0266;
+    span{
+      &:nth-child(1){
+          color: #44FF02;
+      }
+    }
     &:nth-last-child(1){
-      color: #44FF02;
+        color: #44FF02;
     }
   }
 

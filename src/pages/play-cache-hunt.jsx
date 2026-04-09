@@ -5,7 +5,7 @@ import CacheHunt from '../components/App/GameTerminal/CacheHunt/CacheHunt'
 
 const CacheHuntTerminal = () => {
   return (
-    <BodyWrapper parentClass="terminal">
+    <BodyWrapper parentClass="terminal no-green-shape">
         <Header/>
         <CacheHunt/>
     </BodyWrapper>

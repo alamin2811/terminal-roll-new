@@ -21,11 +21,14 @@ const CacheHunt = () => {
 
     const [lines, setLines] = useState([
         `initiating cachehunt.exe`,
-        `mounting terminal treasury`,
-        `cache map linked`,
-        `reward classes loaded`,
-        `legendary breach chance active`,
-        `awaiting user input`
+        `loading entropy modules`,
+        `fetching server seed`,
+        `seeding cache grid...`,
+        // `mounting terminal treasury`,
+        // `cache map linked`,
+        // `reward classes loaded`,
+        // `legendary breach chance active`,
+        // `awaiting user input`
     ])
 
     const { userWalletAddress, terminalWallet, refreshTerminalWallet } = useAppPlayer()
@@ -101,10 +104,9 @@ const CacheHunt = () => {
                 ...l,
                 `cache class: ${tierLabel}`,
                 `multiplier class: ${multiplierX}x`,
-                `resolution: ${
-                    result.result === "win"
-                        ? getTierNarrative(result.cacheTierLabel, result.payoutAmountSol)
-                        : "void cache hit - no payout"
+                `resolution: ${result.result === "win"
+                    ? getTierNarrative(result.cacheTierLabel, result.payoutAmountSol)
+                    : "void cache hit - no payout"
                 }`,
                 result.result === "win"
                     ? `terminal release: ${result.payoutAmountSol} SOL`
@@ -126,14 +128,22 @@ const CacheHunt = () => {
     return (
         <>
             <BitFlipStyle>
-                <div className="bit-flip-top">
+                <div className="custom-container">
+                    <div className="page-links">
+                        <a href="/play-bit-flip" className='bitflip'>Bitflip</a>
+                        <a href="/play-cache-hunt" className='active cacheundt'>CACHEHUNT</a>
+                        <a href="/play-pump-loop" className='pumploop'>PUMPLOOP</a>
+                        <a href="/play-beat-the-bomb" className='beatbomb'>BEATBOMB</a>
+                    </div>
+                </div>
+                <div className="bit-flip-top cache-hunt-top">
                     <div className="custom-container">
                         <div className="bit-flip-inner">
                             <div className="row">
                                 <div className="col-md-6">
                                     <div className="bit-flip-left">
                                         <h2>
-                                            Cache Hunt
+                                            Cache Hunt &gt;_
                                             <button
                                                 className="btn p-0 border-0 bg-transparent"
                                                 onClick={() => setShowInfo(true)}
@@ -141,7 +151,7 @@ const CacheHunt = () => {
                                                 <img src={InfoIcon} alt="info" />
                                             </button>
                                         </h2>
-                                        <p>Terminal Reward Cache Engine</p>
+                                        <p>Distributed cache resolution protocol</p>
                                     </div>
                                 </div>
 
@@ -170,19 +180,77 @@ const CacheHunt = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="bit-flip-bottom">
                     <div className="custom-container">
                         <div className="bit-flip-content">
-                            <Terminal lines={lines} />
+                            {/* <Terminal lines={lines} /> */}
+                            <div className="bit-flip-main-content cache-hunt-main-content">
+                                <div className="left">
+                                    <div className="terminal">
+                                        <Terminal lines={lines} />
+                                    </div>
 
-                            <RangeSlider value={betSol} onChange={setBetSol} />
+                                    <div className="catch-nodes">
+                                        <h5>CACHE NODES</h5>
+                                        <ul>
+                                            <li><button className="catch-nods-btn"><h6>Node_01</h6> <p>Miss</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_02</h6> <p>Miss</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_03</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_04</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_05</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_06</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_07</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_08</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_09</h6> <p>Locked</p></button></li>
+                                            <li><button className="catch-nods-btn"><h6>Node_10</h6> <p>Locked</p></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div className="right">
+                                    <div className="top">
+                                        <h6>Round Info</h6>
+                                        <ul>
+                                            <li><span>CURRENT WIN</span> <h4>2.4x</h4></li>
+                                            <li><span>MAX WIN</span> <strong>10x</strong></li>
+                                            <li><span>YOUR BET</span> <strong>0.058 SOL</strong></li>
+                                            <li><span>IF CASH OUT NOW</span> <strong>0.319 SOL</strong></li>
+                                        </ul>
+                                    </div>
+                                    <div className="bottom">
+                                        <div className="catch-hunt-progress-content">
+                                            <h6>SWEEP PROGRESS</h6>
+                                            <div className="progress-bar">
+                                                <div className="progress w-25"></div>
+                                            </div>
+                                            <div className="progress-value">
+                                                <span>2/10 NODES</span>
+                                                <span>25%</span>
+                                            </div>
+                                        </div>
+                                        <div className="catch-hunt-progress-content">
+                                            <h6>MULTIPLIER PROGRESS</h6>
+                                            <div className="progress-bar">
+                                                <div className="progress w-30"></div>
+                                            </div>
+                                            <div className="progress-value">
+                                                <span>2.4x</span>
+                                                <span>MAX 10x</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="catch-hunt-range-slider">
+                                <RangeSlider value={betSol} onChange={setBetSol} />
+                            </div>
+                            
 
                             <div className="terminal-btn">
-                                <button className="primary-btn lg roll-button hover-btn" onClick={handleRoll} disabled={isRolling}>
+                                <button className="primary-btn catch-hunt-main-btn lg roll-button hover-btn" onClick={handleRoll} disabled={isRolling}>
                                     <span className="btn-text">
-                                        <span><img src={RollIcon} alt="icon" />{isRolling ? "Scanning..." : "Breach Cache"}</span>
-                                        <span><img src={RollIcon} alt="icon" />{isRolling ? "Scanning..." : "Breach Cache"}</span>
+                                        <span>{isRolling ? "Scanning..." : "➤ START HUNT"}</span>
+                                        <span>{isRolling ? "Scanning..." : "➤ START HUNT"}</span>
                                     </span>
                                     <span className="btn-shape btn-shape1"></span>
                                     <span className="btn-shape btn-shape2"></span>

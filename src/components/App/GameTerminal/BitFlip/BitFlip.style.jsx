@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import CatchhuntRangeShape from '../../../../assets/images/shape/catch-hunt-range-shape.png'
+import PumploopRangeShape from '../../../../assets/images/shape/pump-loop-range-shape.png'
 
 
 const BitFlipStyle = styled.div`
@@ -293,7 +295,6 @@ const BitFlipStyle = styled.div`
             }
         }
     }
-    
     .page-links{
         display: flex;
         align-items: center;
@@ -348,7 +349,7 @@ const BitFlipStyle = styled.div`
                     background: #00FFAA1A;
                 }
                 &::before{
-                    background: #44FF02;
+                    background: #00FFAA;
                 }
             }
             &.pumploop{
@@ -374,6 +375,295 @@ const BitFlipStyle = styled.div`
                 }
             }
         }
+    }
+    
+    /* catch hunt content */
+    .cache-hunt-top{
+        .bit-flip-left {
+            h2{
+                color: #00FFAA;
+            }
+        }
+        .bit-flip-right {
+            .balance {
+                button{
+                    background: #00FFAA26;
+                    color: #00FFAA;
+                }
+                h3{
+                    color: #00FFAA;
+                }
+            }
+        }
+    }
+    .cache-hunt-main-content{
+        .terminal-line{
+            color: #00FFAA66;
+            span{
+                &:nth-child(1){
+                    color: #00FFAA;
+                }
+            }
+            &:nth-last-child(1){
+                color: #00FFAA;
+            }
+        }
+        
+        .right {
+            min-height: 586px;
+            .top {
+                ul {
+                    li {
+                        h4{
+                            color: #00FFAA;
+                        }
+                        strong{
+                            color: #00FFAA;
+                        }
+                    }
+                }
+            }
+        }
+        
+        .catch-nodes{
+            h5{
+                font-family: Source Code Pro;
+                font-weight: 600;
+                font-size: 14px;
+                line-height: 120%;
+                text-transform: uppercase;
+                margin-bottom: 10px;
+                color: #819E77;
+            }
+            ul{
+                display: flex;
+                align-items: flex-start;
+                justify-content: flex-start;
+                margin: 0px -7.5px;
+                flex-wrap: wrap;
+                row-gap: 15px;
+                cursor: pointer;
+                li{
+                    width: 20%;
+                    padding: 0px 7.5px;
+                    .catch-nods-btn{
+                        height: 45px;
+                        width: 100%;
+                        border: 1px solid #00FFAA1A;
+                        background: #00FFAA0D;
+                        transition: 0.3s;
+                        text-align: center;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-direction: column;
+                        h6{
+                            font-family: Source Code Pro;
+                            font-weight: 500;
+                            font-size: 14px;
+                            line-height: 100%;
+                            text-transform: uppercase;
+                            margin-bottom: 5px;
+                            color: #819E77;
+                            transition: 0.3s;
+                        }
+                        p{
+                            margin-bottom: 0;
+                            font-family: Source Code Pro;
+                            font-weight: 500;
+                            font-size: 10px;
+                            line-height: 140%;
+                            text-align: center;
+                            text-transform: uppercase;
+                            color: #819E7780;
+                            transition: 0.3s;
+                        }
+                        &:hover{
+                             border: 1px solid #00FFAA4D;
+                             h6{
+                                color: #00FFAA;
+                             }
+                             p{
+                                color: #819E77; 
+                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .catch-hunt-progress-content{
+        margin-bottom: 20px;
+        &:nth-last-child(1){
+            margin-bottom: 0;
+        }
+        h6{
+            font-family: Source Code Pro;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 100%;
+            margin-bottom: 10px;
+            color: #819E77B2;
+            margin-bottom: 10px;
+        }
+        .progress-bar{
+            height: 5px;
+            background: #FFFFFF26;
+            border-radius: 0;
+            margin-bottom: 8px;
+            .progress{
+                background: #00FFAA;
+                border-radius: 0;
+                
+            }
+        }
+        .progress-value{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #819E77;
+            font-family: Source Code Pro;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 100%;
+
+        }
+    }
+    .catch-hunt-range-slider{
+        width: 100%;
+        .range-fill {
+          height: 100%;
+          background: #00FFAA;
+        }
+        .range-bubble {
+            .range-value{
+                background: url(${CatchhuntRangeShape});
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+            }
+        }
+        
+    }
+    .catch-hunt-main-btn{
+        background: #00FFAA !important;
+    }
+    
+    
+    /* pump-loop style */
+    .pump-loop-top{
+        .bit-flip-left {
+            h2{
+                color: #FFE600;
+            }
+        }
+        .bit-flip-right {
+            .balance {
+                button{
+                    background: #FFE60026;
+                    color: #FFE600;
+                }
+                h3{
+                    color: #FFE600;
+                }
+            }
+        }
+    }
+    .cache-hunt-main-content{
+        .terminal-line{
+            color: #FFE60066;
+            span{
+                &:nth-child(1){
+                    color: #FFE600;
+                }
+            }
+            &:nth-last-child(1){
+                color: #FFE600;
+            }
+        }
+        
+        .right {
+            min-height: 586px;
+            .top {
+                ul {
+                    li {
+                        h4{
+                            color: #FFE600;
+                        }
+                        strong{
+                            color: #FFE600;
+                        }
+                    }
+                }
+            }
+        }
+        
+        
+    }
+    .pump-loop-progress-content{
+        margin-bottom: 20px;
+        &:nth-last-child(1){
+            margin-bottom: 0;
+        }
+        h6{
+            font-family: Source Code Pro;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 100%;
+            margin-bottom: 10px;
+            color: #819E77B2;
+            margin-bottom: 10px;
+        }
+        .progress-bar{
+            height: 5px;
+            background: #FFFFFF26;
+            border-radius: 0;
+            margin-bottom: 8px;
+            .progress{
+                background: #FFE600;
+                border-radius: 0;
+                &.progress-danger{
+                    background: #FF2244;
+                }
+            }
+        }
+        .progress-value{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #819E77;
+            font-family: Source Code Pro;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 100%;
+
+        }
+        &.danger{
+            h6{
+                color: #A83232B2 !important;
+            }
+            .progress-value{
+                color: #A83232;
+            }
+            
+        }
+    }
+    .pump-loop-range-slider{
+        width: 100%;
+        .range-fill {
+          height: 100%;
+          background: #FFE600;
+        }
+        .range-bubble {
+            .range-value{
+                background: url(${PumploopRangeShape});
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+            }
+        }
+        
+    }
+    .pump-loop-main-btn{
+        background: #FFE600 !important;
     }
     
     @media only screen and (max-width: 1550px) {
@@ -540,7 +830,6 @@ const BitFlipStyle = styled.div`
                 font-size: 15px;
             }
         }
-        
         .bit-flip-main-content{
             flex-wrap: wrap-reverse;
             .left{
@@ -568,6 +857,14 @@ const BitFlipStyle = styled.div`
         }
         
         
+        /* cache-hunt style */
+        .bit-flip-main-content {
+            .right{
+                min-height: auto;
+            }
+        }
+        
+        
     }
     @media only screen and (max-width: 575px) {
         .page-links{
@@ -583,6 +880,29 @@ const BitFlipStyle = styled.div`
                 }
                 &:nth-last-child(1){
                     border-right: none;
+                }
+            }
+        }
+        /* cache-hunt style */
+        .cache-hunt-main-content {
+            .catch-nodes {
+                ul{
+                    li{
+                        width: 25%;
+                    }
+                }
+            }
+        }
+    }
+    
+    @media only screen and (max-width: 425px) {
+        /* cache-hunt style */
+        .cache-hunt-main-content {
+            .catch-nodes {
+                ul{
+                    li{
+                        width: 33.33%;
+                    }
                 }
             }
         }

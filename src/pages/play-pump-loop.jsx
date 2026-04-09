@@ -5,7 +5,7 @@ import PumpLoop from '../components/App/GameTerminal/PumpLoop/PumpLoop'
 
 const PumpLoopTerminal = () => {
   return (
-    <BodyWrapper parentClass="terminal">
+    <BodyWrapper parentClass="terminal no-green-shape">
         <Header/>
         <PumpLoop/>
     </BodyWrapper>
