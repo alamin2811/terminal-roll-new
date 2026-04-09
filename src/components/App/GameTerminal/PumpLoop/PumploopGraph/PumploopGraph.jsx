@@ -1,68 +1,151 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import PumploopGraphStyle from "./PumploopGraph.style";
 
-const PumploopGraph = () => {
-  const pathRef = useRef(null);
-  const [multiplier, setMultiplier] = useState(1.0);
+const ACCENT     = "#14f195";
+const DANGER     = "#ff2244";
+const GRID_COLOR = "#2a4a3a";
+const TEXT_DIM   = "#2a6a4a";
+
+const SVG_W     = 500;
+const BASELINE  = 140;
+const TOP_PAD   = 10;
+const LEFT_PAD  = 38;
+const RIGHT_PAD = 10;
+
+const GRID_LEVELS = [
+  { label: "1x",  y: BASELINE },
+  { label: "4x",  y: BASELINE - ((4  - 1) / 12) * (BASELINE - TOP_PAD) },
+  { label: "7x",  y: BASELINE - ((7  - 1) / 12) * (BASELINE - TOP_PAD) },
+  { label: "10x", y: BASELINE - ((10 - 1) / 12) * (BASELINE - TOP_PAD) },
+];
+
+function multToY(mult) {
+  return BASELINE - ((mult - 1) / 12) * (BASELINE - TOP_PAD);
+}
+function stepToX(step) {
+  return LEFT_PAD + Math.min(step / 120, 1) * (SVG_W - LEFT_PAD - RIGHT_PAD);
+}
+function buildLinePath(pts) {
+  if (pts.length < 2) return "";
+  return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+}
+function buildAreaPath(pts) {
+  if (pts.length < 2) return "";
+  const last = pts[pts.length - 1];
+  return `${buildLinePath(pts)} L${last.x.toFixed(2)},${BASELINE} L${pts[0].x.toFixed(2)},${BASELINE} Z`;
+}
+
+const PumploopGraph = ({ phase = "idle", onDump }) => {
+  const timerRef  = useRef(null);
+  const pointsRef = useRef([]);
+  const stepRef   = useRef(0);
+  const dumpAtRef = useRef(0);
+  const multRef   = useRef(1.0);
+  const onDumpRef = useRef(onDump);
+  useEffect(() => { onDumpRef.current = onDump; }, [onDump]);
+
+  const [linePath,   setLinePath]   = useState("");
+  const [areaPath,   setAreaPath]   = useState("");
+  const [dotPos,     setDotPos]     = useState({ x: LEFT_PAD, y: BASELINE });
+  const [multiplier, setMultiplier] = useState("1.00");
+  const [footerMult, setFooterMult] = useState("waiting...");
+  const [isDumped,   setIsDumped]   = useState(false);
+
+  const clearTimer = () => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  };
+
+  const resetAllRef = useRef(null);
+  resetAllRef.current = () => {
+    clearTimer();
+    pointsRef.current = [];
+    stepRef.current   = 0;
+    multRef.current   = 1.0;
+    setLinePath("");
+    setAreaPath("");
+    setDotPos({ x: LEFT_PAD, y: BASELINE });
+    setMultiplier("1.00");
+    setFooterMult("waiting...");
+    setIsDumped(false);
+  };
+
+  const showDumpRef = useRef(null);
+  showDumpRef.current = () => {
+    clearTimer();
+    // Line and area stay as-is — just switch color to red via isDumped state
+    setIsDumped(true);
+    setMultiplier("DUMP");
+    setFooterMult("DUMPED");
+    if (onDumpRef.current) onDumpRef.current(multRef.current);
+  };
+
+  const tickRef = useRef(null);
+  tickRef.current = () => {
+    stepRef.current += 1;
+    const noise = (Math.random() - 0.35) * 0.18;
+    multRef.current = Math.max(1.0, multRef.current + 0.09 + noise);
+
+    const x = stepToX(stepRef.current);
+    const y = multToY(multRef.current);
+    pointsRef.current.push({ x, y });
+
+    const pts = pointsRef.current;
+    if (pts.length > 1) {
+      setLinePath(buildLinePath(pts));
+      setAreaPath(buildAreaPath(pts));
+    }
+    setDotPos({ x, y });
+
+    const mStr = multRef.current.toFixed(2);
+    setMultiplier(mStr);
+    setFooterMult(mStr + "x");
+
+    if (multRef.current >= dumpAtRef.current || stepRef.current > 140) {
+      showDumpRef.current();
+    }
+  };
+
+  const startChartRef = useRef(null);
+  startChartRef.current = () => {
+    resetAllRef.current();
+    dumpAtRef.current = 1.1 + Math.pow(Math.random(), 0.45) * 14;
+    timerRef.current  = setInterval(() => tickRef.current(), 80);
+  };
 
   useEffect(() => {
-    const path = pathRef.current;
-    const length = path.getTotalLength();
+    if (phase === "running") startChartRef.current();
+    else if (phase === "idle" || phase === "sold") resetAllRef.current();
+    else if (phase === "dumped") showDumpRef.current();
+  }, [phase]);
 
-    // hide line initially
-    path.style.strokeDasharray = length;
-    path.style.strokeDashoffset = length;
+  useEffect(() => () => clearTimer(), []);
 
-    let start = null;
-    const duration = 4000; // animation duration
-
-    const animate = (timestamp) => {
-      if (!start) start = timestamp;
-      const progress = timestamp - start;
-
-      const percent = Math.min(progress / duration, 1);
-
-      // draw line
-      path.style.strokeDashoffset = length * (1 - percent);
-
-      // multiplier growth (sync with progress)
-      const value = (1 + percent * 13).toFixed(2);
-      setMultiplier(value);
-
-      if (percent < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  }, []);
+  // Line color flips green → red on dump
+  const lineColor = isDumped ? DANGER : ACCENT;
+  const areaId    = isDumped ? "pl-dangerfill" : "pl-areafill";
 
   return (
     <PumploopGraphStyle>
       <div className="graph-header">
-        <span>MULTIPLIER</span>
-        <span className="multiplier">{multiplier}x</span>
+        <span className="graph-label">MULTIPLIER</span>
+        <span className={`multiplier${isDumped ? " dumped" : ""}`}>
+          {isDumped ? "DUMPED" : `${multiplier}x`}
+        </span>
       </div>
 
       <div className="canvas-wrapper">
-        <div className="y-labels">
-          <span>15x</span>
-          <span>10x</span>
-          <span>5x</span>
-          <span>1x</span>
-        </div>
-
-        <svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 200 79"
-          preserveAspectRatio="none"
-        >
-          {/* Glow */}
+        <svg viewBox={`0 0 ${SVG_W} 160`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <defs>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+            <linearGradient id="pl-areafill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor={ACCENT} stopOpacity="0.22" />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity="0.00" />
+            </linearGradient>
+            <linearGradient id="pl-dangerfill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor={DANGER} stopOpacity="0.22" />
+              <stop offset="100%" stopColor={DANGER} stopOpacity="0.00" />
+            </linearGradient>
+            <filter id="pl-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
               <feMerge>
                 <feMergeNode in="coloredBlur" />
                 <feMergeNode in="SourceGraphic" />
@@ -70,22 +153,65 @@ const PumploopGraph = () => {
             </filter>
           </defs>
 
+          {/* Grid */}
+          {GRID_LEVELS.map(({ label, y }) => (
+            <g key={label}>
+              <line
+                x1={LEFT_PAD} y1={y} x2={SVG_W - RIGHT_PAD} y2={y}
+                stroke={GRID_COLOR}
+                strokeWidth={y === BASELINE ? "0.8" : "0.5"}
+                strokeDasharray={y === BASELINE ? undefined : "4 4"}
+              />
+              <text x="2" y={y + 4} fontFamily="'Share Tech Mono', monospace" fontSize="10" fill={TEXT_DIM}>
+                {label}
+              </text>
+            </g>
+          ))}
+
+          {/* Area fill — switches to red gradient on dump */}
+          <path d={areaPath} fill={`url(#${areaId})`} />
+
+          {/* Main line — switches to red on dump */}
           <path
-            ref={pathRef}
-            d="M1.50975 77.6709C1.2126 76.6528 7.74999 77.1618 9.23576 76.9073C11.613 76.6527 12.5045 76.2709 14.8817 76.2709C16.9618 76.2709 19.0419 76.2709 21.1219 76.2709C23.202 76.2709 23.202 75.7618 24.9849 75.38C26.1736 75.1255 28.2536 74.9982 29.4422 74.8709C33.8996 74.4891 38.654 74.6164 43.1113 74.6164C44.3 74.6164 45.7857 74.7437 46.9743 74.6164C48.7573 74.3618 49.9459 73.7255 51.4317 73.3437C54.9975 72.4528 58.8605 72.7073 62.7235 72.7073C68.0723 72.7073 74.6097 72.1982 79.3642 71.4346C82.3357 70.9255 86.1987 70.1618 89.1702 70.1618C92.1418 70.1618 94.8162 69.9073 97.4906 69.5255C100.462 69.2709 104.325 69.3982 107.594 69.3982C115.617 69.3982 125.423 70.1618 132.258 68.38C136.418 67.3618 140.875 68.7618 145.035 68.7618C148.007 68.7618 150.978 68.7618 154.247 68.7618C157.516 68.7618 160.784 68.8891 162.567 67.4891C163.459 66.7255 164.647 66.2164 165.539 65.58C165.836 65.4528 166.133 64.9437 166.43 64.8164C167.025 64.5618 167.916 64.4346 168.51 64.3073C169.996 63.9255 169.699 63.6709 171.482 63.5437..."
-            stroke="#FFE600"
-            strokeWidth="2"
+            d={linePath}
             fill="none"
-            filter="url(#glow)"
+            stroke={lineColor}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter="url(#pl-glow)"
+          />
+
+          {/* DUMPED label — only shown when dumped */}
+          {isDumped && (
+            <text
+              x={Math.min(dotPos.x + 6, SVG_W - 60)}
+              y={Math.max(dotPos.y - 8, TOP_PAD + 10)}
+              fontFamily="'Share Tech Mono', monospace"
+              fontSize="11"
+              fontWeight="bold"
+              fill={DANGER}
+            >
+              DUMPED
+            </text>
+          )}
+
+          {/* Moving dot — turns red on dump */}
+          <circle
+            cx={dotPos.x}
+            cy={dotPos.y}
+            r="5"
+            fill={lineColor}
+            filter="url(#pl-glow)"
           />
         </svg>
       </div>
 
-      <div className="bottom-info">
-        <div>LAUNCH</div>
-        <div className="payout">
-          &gt; PAYOUT NOW: 0.3247 SOL ({multiplier}x)
-        </div>
+      <div className="chart-footer">
+        <span>LAUNCH</span>
+        <span className="footer-right" style={{ color: isDumped ? DANGER : ACCENT }}>
+          {footerMult}
+        </span>
       </div>
     </PumploopGraphStyle>
   );

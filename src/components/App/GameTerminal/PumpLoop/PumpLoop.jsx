@@ -89,20 +89,23 @@ const PumpLoop = () => {
     const spinnerRef = useRef(null)
     const [betSol, setBetSol] = useState(1.0025);
 
+    // Controls the graph animation: 'idle' | 'running' | 'sold' | 'dumped'
+    const [graphPhase, setGraphPhase] = useState("idle");
+
     const [lines, setLines] = useState([
-        // `initiating pump_loop.exe`,
-        // `mounting Pump.Fun launch engine`,
-        // `wild 100x upside mode armed`,
-        // `click to launch token`,
         `initiating pumploop.exe`,
         `loading entropy modules`,
         `fetching server seed`,
         `ready — set bet and launch token`,
     ])
+
     const { userWalletAddress, terminalWallet, refreshTerminalWallet } = useAppPlayer();
+
     const handleRoll = async () => {
         if (isRolling) return;
         setIsRolling(true);
+        // Start the graph when the roll begins
+        setGraphPhase("running");
 
         try {
             setLines(l => [
@@ -121,7 +124,6 @@ const PumpLoop = () => {
 
             stopSpinner();
 
-
             const cleanedLines = (result.terminalLines || []).map(line =>
                 line.startsWith(">") ? line.slice(1).trim() : line
             );
@@ -129,6 +131,13 @@ const PumpLoop = () => {
             for (const line of cleanedLines) {
                 setLines(l => [...l, line]);
                 await sleep(getDelay(line));
+            }
+
+            // Update graph phase based on result
+            if (result.result === "win") {
+                setGraphPhase("sold");
+            } else {
+                setGraphPhase("dumped");
             }
 
             setLines(l => [
@@ -140,24 +149,16 @@ const PumpLoop = () => {
                 `click to launch token`,
             ]);
 
-            /*setLines(l => [
-                ...l,
-                ...(result.terminalLines || []).map(line => line.startsWith(">") ? line.slice(1).trim() : line),
-                `resolution: ${
-                    result.result === "win"
-                        ? `WIN - ${result.payoutAmountSol} SOL paid out`
-                        : `MISS - launch collapsed`
-                }`,
-            ]);*/
-
             refreshTerminalWallet();
         } catch (e) {
             stopSpinner();
+            setGraphPhase("idle");
             setLines(l => [...l, `roll failed: ${e.message || "unknown error"}`]);
         } finally {
             setIsRolling(false);
         }
     };
+
     const startSpinner = () => {
         let i = 0;
         spinnerRef.current = setInterval(() => {
@@ -169,12 +170,14 @@ const PumpLoop = () => {
             i++;
         }, 120);
     };
+
     const stopSpinner = () => {
         if (spinnerRef.current) {
             clearInterval(spinnerRef.current);
             spinnerRef.current = null;
         }
     };
+
     useEffect(() => {
         const el = terminalRef.current
         if (!el) return
@@ -182,15 +185,18 @@ const PumpLoop = () => {
     }, [])
 
     const [isPumpRolling, setIsPumpRolling] = useState(false);
-    
-      const handleSellNow = () => {
-        setIsRolling(true);
-    
-        setTimeout(() => {
-          setIsRolling(false);
-        }, 3000);
-      };
 
+    // handleSellNow — starts the graph on click, stops it after 3s
+    const handleSellNow = () => {
+        setIsRolling(true);
+        setGraphPhase("running"); // ← start chart animation
+
+        setTimeout(() => {
+            setIsRolling(false);
+            setGraphPhase("sold"); // ← freeze chart
+            setTimeout(() => setGraphPhase("idle"), 1500); // ← reset after brief pause
+        }, 3000);
+    };
 
     return (
         <>
@@ -259,8 +265,11 @@ const PumpLoop = () => {
                                         <Terminal lines={lines} />
                                     </div>
 
-                                    <PumploopGraph />
-
+                                    {/* Graph starts when button is clicked (graphPhase = 'running') */}
+                                    <PumploopGraph
+                                        phase={graphPhase}
+                                        onDump={() => setGraphPhase("dumped")}
+                                    />
 
                                 </div>
                                 <div className="right">

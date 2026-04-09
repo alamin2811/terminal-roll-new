@@ -1,59 +1,64 @@
 import styled from "styled-components";
 
 const PumploopGraphStyle = styled.div`
-  background: #0b1f17;
-  border: 1px solid rgba(255, 255, 0, 0.2);
-  padding: 20px;
+  background: #0a1510;
+  border: 1px solid #2a4a3a;
+  border-radius: 4px;
+  padding: 14px;
   position: relative;
   overflow: hidden;
+  font-family: 'Share Tech Mono', monospace;
 
   .graph-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    color: #9aa;
-    font-size: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .graph-label {
+    font-size: 11px;
+    color: #2a6a4a;
     letter-spacing: 2px;
   }
 
   .multiplier {
-    color: #ffe600;
     font-size: 28px;
-    font-weight: bold;
+    letter-spacing: 3px;
+    color: #14f195;
+    transition: color 0.2s;
+
+    &.dumped {
+      color: #ff2244;
+    }
   }
 
   .canvas-wrapper {
     position: relative;
-    height: 220px;
+    height: 180px;
+    background: #0e1c14;
+    border: 1px solid #2a4a3a;
+    border-radius: 4px;
+    padding: 14px 14px 8px 14px;
   }
 
-  canvas {
+  svg {
+    display: block;
     width: 100%;
     height: 100%;
   }
 
-  .y-labels {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
+  .chart-footer {
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
-    font-size: 12px;
-    color: #7a8;
-  }
+    margin-top: 8px;
+    font-size: 11px;
+    color: #2a6a4a;
+    letter-spacing: 1px;
 
-  .bottom-info {
-    margin-top: 10px;
-    color: #9aa;
-    font-size: 12px;
-  }
-
-  .payout {
-    color: #ffe600;
-    font-weight: bold;
-    margin-top: 5px;
+    .footer-right {
+      color: #14f195;
+    }
   }
 `;
 
