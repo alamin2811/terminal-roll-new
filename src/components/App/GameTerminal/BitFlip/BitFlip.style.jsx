@@ -568,7 +568,7 @@ const BitFlipStyle = styled.div`
             }
         }
     }
-    .cache-hunt-main-content{
+    .pump-loop-main-content{
         .terminal-line{
             color: #FFE60066;
             span{
@@ -580,9 +580,16 @@ const BitFlipStyle = styled.div`
                 color: #FFE600;
             }
         }
+        .left {
+            .terminal {
+                .terminal-inner{
+                    min-height: 350px;
+                }
+            }
+        }
         
         .right {
-            min-height: 586px;
+            min-height: 654px;
             .top {
                 ul {
                     li {

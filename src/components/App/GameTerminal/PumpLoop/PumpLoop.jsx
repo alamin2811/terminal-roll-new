@@ -11,6 +11,7 @@ import PumpLoopInfo from './PumpLoopInfo/PumpLoopInfo'
 import PumploopGraph from './PumploopGraph/PumploopGraph'
 
 const SPINNER_FRAMES = ["-", "\\", "|", "/"];
+const MAX_MULT = 100; // maximum multiplier for progress bar calculation
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -92,6 +93,13 @@ const PumpLoop = () => {
     // Controls the graph animation: 'idle' | 'running' | 'sold' | 'dumped'
     const [graphPhase, setGraphPhase] = useState("idle");
 
+    // Dynamic progress values driven by graph multiplier
+    // pumpProgress: 0–100 based on current mult vs MAX_MULT
+    // riskLevel: increases faster (more aggressive curve)
+    const [pumpProgress, setPumpProgress] = useState(0);
+    const [riskLevel, setRiskLevel] = useState(0);
+    const [currentMult, setCurrentMult] = useState(1.0);
+
     const [lines, setLines] = useState([
         `initiating pumploop.exe`,
         `loading entropy modules`,
@@ -100,6 +108,17 @@ const PumpLoop = () => {
     ])
 
     const { userWalletAddress, terminalWallet, refreshTerminalWallet } = useAppPlayer();
+
+    // Called every tick by PumploopGraph with the current multiplier
+    const handleProgressUpdate = (mult) => {
+        setCurrentMult(mult);
+        // Pump progress: linear scale 1x → 100x mapped to 0% → 100%
+        const pump = Math.min(((mult - 1) / (MAX_MULT - 1)) * 100, 100);
+        setPumpProgress(pump);
+        // Risk level: grows faster — square root curve makes it feel more dangerous early
+        const risk = Math.min(Math.sqrt((mult - 1) / (MAX_MULT - 1)) * 100, 100);
+        setRiskLevel(risk);
+    };
 
     const handleRoll = async () => {
         if (isRolling) return;
@@ -194,8 +213,21 @@ const PumpLoop = () => {
         setTimeout(() => {
             setIsRolling(false);
             setGraphPhase("sold"); // ← freeze chart
-            setTimeout(() => setGraphPhase("idle"), 1500); // ← reset after brief pause
+            setTimeout(() => {
+                setGraphPhase("idle"); // ← reset after brief pause
+                setPumpProgress(0);
+                setRiskLevel(0);
+                setCurrentMult(1.0);
+            }, 1500);
         }, 3000);
+    };
+
+    // Get risk label text based on level
+    const getRiskLabel = (level) => {
+        if (level < 25) return "LOW";
+        if (level < 50) return "MEDIUM";
+        if (level < 75) return "HIGH";
+        return "EXTREME";
     };
 
     return (
@@ -259,7 +291,7 @@ const PumpLoop = () => {
                 <div className="bit-flip-bottom">
                     <div className="custom-container">
                         <div className="bit-flip-content">
-                            <div className="bit-flip-main-content cache-hunt-main-content">
+                            <div className="bit-flip-main-content pump-loop-main-content">
                                 <div className="left">
                                     <div className="terminal">
                                         <Terminal lines={lines} />
@@ -269,6 +301,7 @@ const PumpLoop = () => {
                                     <PumploopGraph
                                         phase={graphPhase}
                                         onDump={() => setGraphPhase("dumped")}
+                                        onProgressUpdate={handleProgressUpdate}
                                     />
 
                                 </div>
@@ -276,7 +309,7 @@ const PumpLoop = () => {
                                     <div className="top">
                                         <h6>Round Info</h6>
                                         <ul>
-                                            <li><span>CURRENT WIN</span> <h4>14.06x</h4></li>
+                                            <li><span>CURRENT WIN</span> <h4>{currentMult.toFixed(2)}x</h4></li>
                                             <li><span>MAX WIN</span> <strong>100x</strong></li>
                                             <li><span>YOUR BET</span> <strong>0.058 SOL</strong></li>
                                             <li><span>SELL NOW</span> <strong>0.815 SOL</strong></li>
@@ -286,20 +319,26 @@ const PumpLoop = () => {
                                         <div className="pump-loop-progress-content">
                                             <h6>PUMP PROGRESS</h6>
                                             <div className="progress-bar">
-                                                <div className="progress progress-warning w-25"></div>
+                                                <div
+                                                    className="progress progress-warning"
+                                                    style={{ width: `${pumpProgress}%`, transition: 'width 0.1s ease' }}
+                                                ></div>
                                             </div>
                                             <div className="progress-value">
-                                                <span>14.63x</span>
+                                                <span>{currentMult.toFixed(2)}x</span>
                                                 <span>MAX 100x</span>
                                             </div>
                                         </div>
                                         <div className="pump-loop-progress-content danger">
                                             <h6>RISK LEVEL</h6>
                                             <div className="progress-bar">
-                                                <div className="progress progress-danger w-30"></div>
+                                                <div
+                                                    className="progress progress-danger"
+                                                    style={{ width: `${riskLevel}%`, transition: 'width 0.1s ease' }}
+                                                ></div>
                                             </div>
                                             <div className="progress-value">
-                                                <span>HIGH</span>
+                                                <span>{getRiskLabel(riskLevel)}</span>
                                                 <span>EXTREME</span>
                                             </div>
                                         </div>
@@ -321,12 +360,12 @@ const PumpLoop = () => {
                                         <span>
                                             {isPumpRolling
                                                 ? "Launching Token..."
-                                                : "▼ SELL NOW — 14.06x"}
+                                                : `▼ SELL NOW — ${currentMult.toFixed(2)}x`}
                                         </span>
                                         <span>
                                             {isPumpRolling
                                                 ? "Launching Token..."
-                                                : "▼ SELL NOW — 14.06x"}
+                                                : `▼ SELL NOW — ${currentMult.toFixed(2)}x`}
                                         </span>
                                     </span>
 
