@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 const PumploopGraphStyle = styled.div`
-
+  position: relative;
+  z-index: 11;
   .graph-header {
     display: flex;
     justify-content: space-between;

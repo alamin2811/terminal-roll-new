@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import BitFlipStyle from "../BitFlip/BitFlip.style";
 import InfoIcon from "../../../../assets/images/icon/info_icon.png";
+import beatbombRedShape from "../../../../assets/images/bg/red-shape.png";
 import DipositDrawer from "../../../Core/ConnectWalletButton/DipositDrawer/DipositDrawer";
 import Terminal from "../../../Core/Terminal/Terminal";
 import { useAppPlayer } from "../../../../context/AppPlayerContext";
@@ -291,6 +292,8 @@ const BeatBomb = () => {
 
                 {/* LEFT — terminal + fuse widget */}
                 <div className="left">
+                  <img src={beatbombRedShape} alt="img" className="beatflip-shape shape-left" />
+                  <img src={beatbombRedShape} alt="img" className="beatflip-shape shape-right" />
                   <div className="terminal">
                     <div ref={terminalRef}>
                       <Terminal

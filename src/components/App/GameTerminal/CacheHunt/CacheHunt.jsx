@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react'
 import BitFlipStyle from '../BitFlip/BitFlip.style'
 import RollIcon from '../../../../assets/images/icon/roll.png'
 import InfoIcon from '../../../../assets/images/icon/info_icon.png'
+import cacheHuntTealShape from "../../../../assets/images/bg/teal-shape.png";
 import DipositDrawer from '../../../Core/ConnectWalletButton/DipositDrawer/DipositDrawer'
 import Terminal from '../../../Core/Terminal/Terminal'
 import { rollCacheHunt } from "../../../../services/roll.api"
@@ -186,6 +187,9 @@ const CacheHunt = () => {
                             {/* <Terminal lines={lines} /> */}
                             <div className="bit-flip-main-content cache-hunt-main-content">
                                 <div className="left">
+                                    <img src={cacheHuntTealShape} alt="img" className="beatflip-shape shape-left" />
+                                    <img src={cacheHuntTealShape} alt="img" className="beatflip-shape shape-right" />
+                                    
                                     <div className="terminal">
                                         <Terminal lines={lines} />
                                     </div>

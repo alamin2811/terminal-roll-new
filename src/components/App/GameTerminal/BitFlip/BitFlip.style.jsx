@@ -140,14 +140,29 @@ const BitFlipStyle = styled.div`
             border-right: 1px dashed rgba(255, 255, 255, 0.20);
             padding-right: 20px;
             padding-bottom: 20px;
+            position: relative;
+            .beatflip-shape{
+                position: absolute;
+                top: 0;
+                z-index: 0;
+                width: 70%;
+                &.shape-left{
+                    left: -20px;
+                    transform: scaleX(-1);
+                }
+                &.shape-right{
+                    right: 0;
+                }
+            }
             .terminal{
                 width: 100%;
+                position: relative;
+                z-index: 11;
                 .terminal-inner{
                     height: auto;
                     min-height: 430px;
                 }
                 .terminal-body{
-                    
                     padding-bottom: 0;
                 }
             }
@@ -165,6 +180,8 @@ const BitFlipStyle = styled.div`
                 row-gap: 10px;
                 cursor: pointer;
                 transition: 0.3s;
+                position: relative;
+                z-index: 11;
                 &.active, 
                 &:hover{
                     border: 1px solid #44FF0280;
@@ -200,6 +217,7 @@ const BitFlipStyle = styled.div`
                     color: #819E77;
                 }
             }
+            
         }
         .right{
             width: 33.33%;
@@ -427,6 +445,8 @@ const BitFlipStyle = styled.div`
         }
         
         .catch-nodes{
+            position: relative;
+            z-index: 11;
             h5{
                 font-family: Source Code Pro;
                 font-weight: 600;
@@ -962,6 +982,12 @@ const BitFlipStyle = styled.div`
                         min-height: 360px;
                     }
                 }
+                .beatflip-shape{
+                    &.shape-left{
+                        left: -5px;
+                    }
+                }
+                
             }
             .right{
                 width: 100%;

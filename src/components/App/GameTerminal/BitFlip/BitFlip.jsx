@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import BitFlipStyle from './BitFlip.style'
 import RollIcon from '../../../../assets/images/icon/roll.png'
 import InfoIcon from '../../../../assets/images/icon/info_icon.png'
+import bitflipGreenShape from "../../../../assets/images/bg/green-shape.png";
 import BitFlipInfo from './BitFlipInfo/BitFlipInfo'
 import DipositDrawer from '../../../Core/ConnectWalletButton/DipositDrawer/DipositDrawer'
 import Terminal from '../../../Core/Terminal/Terminal'
@@ -252,6 +253,8 @@ const BitFlip = () => {
                         <div className="bit-flip-content">
                             <div className="bit-flip-main-content">
                                 <div className="left">
+                                    <img src={bitflipGreenShape} alt="img" className="beatflip-shape shape-left" />
+                                    <img src={bitflipGreenShape} alt="img" className="beatflip-shape shape-right" />
                                     <div className="terminal">
                                         <Terminal lines={lines} />
                                     </div>

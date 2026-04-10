@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import BitFlipStyle from '../BitFlip/BitFlip.style'
 import RollIcon from '../../../../assets/images/icon/roll.png'
 import InfoIcon from '../../../../assets/images/icon/info_icon.png'
+import pumploopYellowShape from "../../../../assets/images/bg/yellow-shape.png";
 import DipositDrawer from '../../../Core/ConnectWalletButton/DipositDrawer/DipositDrawer'
 import Terminal from '../../../Core/Terminal/Terminal'
 import { rollPumpLoop } from "../../../../services/roll.api";
@@ -293,6 +294,8 @@ const PumpLoop = () => {
                         <div className="bit-flip-content">
                             <div className="bit-flip-main-content pump-loop-main-content">
                                 <div className="left">
+                                    <img src={pumploopYellowShape} alt="img" className="beatflip-shape shape-left" />
+                                    <img src={pumploopYellowShape} alt="img" className="beatflip-shape shape-right" />
                                     <div className="terminal">
                                         <Terminal lines={lines} />
                                     </div>

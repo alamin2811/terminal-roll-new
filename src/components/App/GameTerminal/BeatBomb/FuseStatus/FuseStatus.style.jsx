@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 
 const FuseStatusStyle = styled.div`
+    position: relative;
+    z-index: 11;
     h6{
         font-family: Source Code Pro;
         font-weight: 600;
