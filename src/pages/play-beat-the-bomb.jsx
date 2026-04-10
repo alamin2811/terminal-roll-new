@@ -5,7 +5,7 @@ import BeatBomb from '../components/App/GameTerminal/BeatBomb/BeatBomb'
 
 const BeatBombTerminal = () => {
   return (
-    <BodyWrapper parentClass="terminal">
+    <BodyWrapper parentClass="terminal no-green-shape">
         <Header/>
         <BeatBomb/>
     </BodyWrapper>

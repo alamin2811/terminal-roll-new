@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import CatchhuntRangeShape from '../../../../assets/images/shape/catch-hunt-range-shape.png'
 import PumploopRangeShape from '../../../../assets/images/shape/pump-loop-range-shape.png'
+import BeatbombRangeShape from '../../../../assets/images/shape/beatbomb-range-shape.png'
 
 
 const BitFlipStyle = styled.div`
@@ -672,6 +673,116 @@ const BitFlipStyle = styled.div`
     .pump-loop-main-btn{
         background: #FFE600 !important;
     }
+    
+    
+    /* beat bomb style */
+    
+    /* catch hunt content */
+    .beatbomb-top{
+        .bit-flip-left {
+            h2{
+                color: #FF2244;
+            }
+        }
+        .bit-flip-right {
+            .balance {
+                button{
+                    background: #FF224426;
+                    color: #FF2244;
+                }
+                h3{
+                    color: #FF2244;
+                }
+            }
+        }
+    }
+    .beatbomb-main-content{
+        .terminal-line{
+            color: #FF224466;
+            span{
+                &:nth-child(1){
+                    color: #FF2244;
+                }
+            }
+            &:nth-last-child(1){
+                color: #FF2244;
+            }
+        }
+        
+        .right {
+            min-height: 586px;
+            .top {
+                ul {
+                    li {
+                        h4{
+                            color: #FF2244;
+                        }
+                        strong{
+                            color: #FF2244;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .catch-hunt-progress-content{
+        margin-bottom: 20px;
+        &:nth-last-child(1){
+            margin-bottom: 0;
+        }
+        h6{
+            font-family: Source Code Pro;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 100%;
+            margin-bottom: 10px;
+            color: #819E77B2;
+            margin-bottom: 10px;
+        }
+        .progress-bar{
+            height: 5px;
+            background: #FFFFFF26;
+            border-radius: 0;
+            margin-bottom: 8px;
+            .progress{
+                background: #FF2244;
+                border-radius: 0;
+                
+            }
+        }
+        .progress-value{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #819E77;
+            font-family: Source Code Pro;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 100%;
+
+        }
+    }
+    .beatbomb-range-slider{
+        width: 100%;
+        .range-fill {
+          height: 100%;
+          background: #FF2244;
+        }
+        .range-bubble {
+            .range-value{
+                background: url(${BeatbombRangeShape});
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+            }
+        }
+        
+    }
+    .beatbomb-btn{
+        background: #FF2244 !important;
+    }
+    
+    
+    
     
     @media only screen and (max-width: 1550px) {
         .page-links{
