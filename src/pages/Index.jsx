@@ -13,7 +13,7 @@ function Home() {
 
   return (
     <>
-      <BodyWrapper>
+      <BodyWrapper parentClass="chose-game-page">
          <IndexStyle> 
           <Header/>
           <div className="">

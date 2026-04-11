@@ -6,37 +6,34 @@ import DipositDrawer from "../../../Core/ConnectWalletButton/DipositDrawer/Dipos
 import Terminal from "../../../Core/Terminal/Terminal";
 import { useAppPlayer } from "../../../../context/AppPlayerContext";
 import RangeSlider from "../BitFlip/RangeSlider/RangeSlider";
-import {
-  startBeatBomb,
-  openBeatBombStream,
-  cashoutBeatBomb,
-} from "../../../../services/beatBomb.api";
+// import {
+//   startBeatBomb,
+//   openBeatBombStream,
+//   cashoutBeatBomb,
+// } from "../../../../services/beatBomb.api";
+// ↑ API calls commented out — running in pure HTML-simulation mode
 import FuseStatus from "./FuseStatus/FuseStatus";
 
-// ── Match this to your server-side fuse duration ──────────────────────────────
-const FUSE_DURATION = 30; // seconds
+const FUSE_DURATION = 30; // seconds — matches HTML maxSec
 
 const BeatBomb = () => {
-  const drawerRef  = useRef(null);
+  const drawerRef = useRef(null);
   const terminalRef = useRef(null);
-  const streamRef  = useRef(null);
 
-  // Countdown refs — we drive smooth CSS transitions with a float elapsed value
-  // updated every animation frame, keeping React re-renders to ~10 fps.
-  const rafRef      = useRef(null);
-  const startTsRef  = useRef(null);  // performance.now() when countdown started
-  const renderTick  = useRef(0);     // frame counter for throttling setState
+  // ── Simulation timer ref (matches HTML BOMB.timer) ────────────────────────
+  const bombTimerRef = useRef(null);
+  // ── rAF ref for smooth progress bar ──────────────────────────────────────
+  const rafRef = useRef(null);
+  const startTsRef = useRef(null);
+  const renderTickRef = useRef(0);
 
-  const [betSol,          setBetSol]          = useState(0.0525);
-  const [isBusy,          setIsBusy]          = useState(false);
-  const [activeRoundId,   setActiveRoundId]   = useState(null);
-  const [liveMultiplier,  setLiveMultiplier]  = useState(1.00);
-  const [showInfo,        setShowInfo]        = useState(false);
-
-  // secondsLeft drives the FuseStatus number display (integer, ~10fps update)
-  const [secondsLeft,     setSecondsLeft]     = useState(FUSE_DURATION);
-  // smoothPct is the CSS width value — updated every rAF for butter-smooth bars
-  const [smoothPct,       setSmoothPct]       = useState(100); // TIME LEFT bar width
+  // ── Phase: idle | running | nuked | boom (matches HTML exactly) ───────────
+  const [phase, setPhase] = useState("idle");
+  const [betSol, setBetSol] = useState(0.0525);
+  const [liveMultiplier, setLiveMultiplier] = useState(1.00);
+  const [secondsLeft, setSecondsLeft] = useState(FUSE_DURATION);
+  const [smoothPct, setSmoothPct] = useState(0); // fuse progress 0→100
+  const [showInfo, setShowInfo] = useState(false);
 
   const [lines, setLines] = useState([
     "arming beatbomb.exe",
@@ -45,25 +42,16 @@ const BeatBomb = () => {
     "ready — arm the bomb, beat it before it explodes",
   ]);
 
-  const { userWalletAddress, terminalWallet, refreshTerminalWallet } = useAppPlayer();
+  const { terminalWallet } = useAppPlayer();
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
-
+  // ── Push terminal lines ───────────────────────────────────────────────────
   const pushLines = useCallback((incoming) => {
     if (!Array.isArray(incoming) || !incoming.length) return;
     setLines((prev) => [...prev, ...incoming]);
   }, []);
 
-  const closeStream = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.close();
-      streamRef.current = null;
-    }
-  }, []);
-
-  // ── rAF-based countdown ──────────────────────────────────────────────────────
-
-  const stopCountdown = useCallback(() => {
+  // ── Stop rAF smooth bar ───────────────────────────────────────────────────
+  const stopRaf = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -71,170 +59,161 @@ const BeatBomb = () => {
     startTsRef.current = null;
   }, []);
 
-  const resetCountdown = useCallback(() => {
-    stopCountdown();
-    setSecondsLeft(FUSE_DURATION);
-    setSmoothPct(100);
-    renderTick.current = 0;
-  }, [stopCountdown]);
+  // ── Stop interval timer (matches HTML clearInterval(BOMB.timer)) ──────────
+  const stopBombTimer = useCallback(() => {
+    if (bombTimerRef.current) {
+      clearInterval(bombTimerRef.current);
+      bombTimerRef.current = null;
+    }
+  }, []);
 
-  const startCountdown = useCallback(() => {
-    stopCountdown();
-    renderTick.current = 0;
+  // ── Start rAF for smooth CSS progress bar ─────────────────────────────────
+  const startRaf = useCallback((durationSec) => {
+    stopRaf();
+    renderTickRef.current = 0;
     startTsRef.current = performance.now();
 
     const tick = (now) => {
-      const elapsed = (now - startTsRef.current) / 1000; // seconds elapsed
-      const remaining = Math.max(0, FUSE_DURATION - elapsed);
-      const pct = (remaining / FUSE_DURATION) * 100;
-
-      // Smooth pct — every frame (60fps visual update)
-      setSmoothPct(pct);
-
-      // Integer seconds — throttled to ~10fps to avoid React churn
-      renderTick.current += 1;
-      if (renderTick.current % 6 === 0) {
-        setSecondsLeft(Math.ceil(remaining));
-      }
+      const elapsed = (now - startTsRef.current) / 1000;
+      const remaining = Math.max(0, durationSec - elapsed);
+      // fuse progress: 0% → 100% as fuse burns (matches HTML fusePct)
+      const fusePct = ((durationSec - remaining) / durationSec) * 100;
+      setSmoothPct(fusePct);
 
       if (remaining > 0) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
-        // Fuse burnt out — snap both to final state
-        setSmoothPct(0);
-        setSecondsLeft(0);
+        setSmoothPct(100);
         rafRef.current = null;
       }
     };
 
     rafRef.current = requestAnimationFrame(tick);
-  }, [stopCountdown]);
+  }, [stopRaf]);
 
-  // ── Stream ───────────────────────────────────────────────────────────────────
+  // ── HTML bombTick equivalent — runs every 500ms ───────────────────────────
+  // matches: s.seconds--, s.mult = 1 + (maxSec - seconds) * 0.32, boom check
+  const startBombInterval = useCallback((durationSec) => {
+    stopBombTimer();
 
-  const attachStream = useCallback((roundId) => {
-    closeStream();
+    let seconds = durationSec;
+    const maxSec = durationSec;
 
-    const es = openBeatBombStream({ roundId, walletAddress: userWalletAddress });
-    streamRef.current = es;
+    bombTimerRef.current = setInterval(() => {
+      seconds = Math.max(0, seconds - 1);
+      // same formula as HTML: 1 + (maxSec - seconds) * 0.32, capped at 10
+      const mult = parseFloat(Math.min(10, 1 + (maxSec - seconds) * 0.32).toFixed(2));
 
-    es.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
+      setSecondsLeft(seconds);
+      setLiveMultiplier(mult);
 
-        if (typeof payload.multiplier === "number") {
-          setLiveMultiplier(payload.multiplier);
-        }
-        if (Array.isArray(payload.lines)) {
-          pushLines(payload.lines);
-        }
-
-        if (payload.type === "crash" || payload.type === "cashout") {
-          setActiveRoundId(null);
-          setIsBusy(false);
+      if (seconds <= 0) {
+        // ── BOOM — matches HTML: s.phase='boom', auto-reset after 3000ms ───
+        stopBombTimer();
+        stopRaf();
+        setSmoothPct(100);
+        setPhase("boom");
+        pushLines(["BOOM — bomb exploded. bet lost."]);
+        setTimeout(() => {
+          setPhase("idle");
           setLiveMultiplier(1.00);
-          resetCountdown();
-          refreshTerminalWallet();
-          closeStream();
-        }
-
-        if (payload.type === "error") {
-          setActiveRoundId(null);
-          setIsBusy(false);
-          resetCountdown();
-          pushLines([`round failed: ${payload.message || "unknown error"}`]);
-          closeStream();
-        }
-      } catch (e) {
-        pushLines([`stream parse failed: ${e.message || "unknown error"}`]);
+          setSecondsLeft(FUSE_DURATION);
+          setSmoothPct(0);
+        }, 3000);
       }
-    };
+    }, 500);
+  }, [stopBombTimer, stopRaf, pushLines]);
 
-    es.onerror = () => {
-      closeStream();
-      pushLines(["connection lost - reconnecting round stream"]);
-      setTimeout(() => {
-        if (!streamRef.current) attachStream(roundId);
-      }, 1000);
-    };
-  }, [closeStream, pushLines, resetCountdown, refreshTerminalWallet, userWalletAddress]);
+  // ── ARM BOMB — matches HTML startBomb() ──────────────────────────────────
+  const startBomb = useCallback(() => {
+    setPhase("running");
+    setLiveMultiplier(1.00);
+    setSecondsLeft(FUSE_DURATION);
+    setSmoothPct(0);
+    pushLines(["bomb armed — fuse burning"]);
+    startRaf(FUSE_DURATION);
+    startBombInterval(FUSE_DURATION);
+  }, [pushLines, startRaf, startBombInterval]);
 
-  // ── Button handler ───────────────────────────────────────────────────────────
-
-  const handlePrimaryClick = async () => {
-    if (!userWalletAddress) { pushLines(["wallet not connected"]); return; }
-    if (isBusy) return;
-
-    try {
-      setIsBusy(true);
-
-      // ── First click: START a new round ──
-      if (!activeRoundId) {
-        const betLamports = Math.round(betSol * 1_000_000_000);
-        pushLines(["server arming bomb detonation point"]);
-
-        const out = await startBeatBomb({ walletAddress: userWalletAddress, betLamports });
-
-        setActiveRoundId(out.roundId);
-        setLiveMultiplier(1.00);
-        pushLines(out.lines || []);
-        attachStream(out.roundId);
-
-        // ── Kick the countdown the moment the round is confirmed ──
-        startCountdown();
-
-        setIsBusy(false);
-        return;
-      }
-
-      // ── Second click: CASH OUT ──
-      pushLines([`cashout request sent at ${liveMultiplier.toFixed(2)}x`]);
-      await cashoutBeatBomb({ walletAddress: userWalletAddress, roundId: activeRoundId });
-
-    } catch (e) {
-      pushLines([`round failed: ${e.message || "unknown error"}`]);
-      setActiveRoundId(null);
+  // ── NUKE IT — matches HTML nukeBomb() ────────────────────────────────────
+  const nukeBomb = useCallback(() => {
+    stopBombTimer();
+    stopRaf();
+    setPhase("nuked");
+    setLiveMultiplier((prev) => {
+      pushLines([`nuked at ${prev.toFixed(2)}x — cashing out`]);
+      return prev;
+    });
+    // auto-reset after 3500ms (matches HTML setTimeout 3500)
+    setTimeout(() => {
+      setPhase("idle");
       setLiveMultiplier(1.00);
-      resetCountdown();
-      closeStream();
-    } finally {
-      setIsBusy(false);
+      setSecondsLeft(FUSE_DURATION);
+      setSmoothPct(0);
+    }, 3500);
+  }, [stopBombTimer, stopRaf, pushLines]);
+
+  // ── Primary button — matches HTML handleBombBtn() exactly ─────────────────
+  //   idle    → startBomb()
+  //   running → nukeBomb()
+  //   nuked / boom → reset to idle
+  const handlePrimaryClick = () => {
+    if (phase === "idle") {
+      startBomb();
+    } else if (phase === "running") {
+      nukeBomb();
+    } else {
+      // nuked or boom — reset (matches HTML else branch)
+      setPhase("idle");
+      setLiveMultiplier(1.00);
+      setSecondsLeft(FUSE_DURATION);
+      setSmoothPct(0);
     }
   };
 
-  // ── Scroll terminal ──────────────────────────────────────────────────────────
-
+  // ── Scroll terminal ───────────────────────────────────────────────────────
   useEffect(() => {
     const el = terminalRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
 
-  // ── Cleanup on unmount ───────────────────────────────────────────────────────
-
+  // ── Cleanup on unmount ────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
-      closeStream();
-      stopCountdown();
+      stopBombTimer();
+      stopRaf();
     };
-  }, [closeStream, stopCountdown]);
+  }, [stopBombTimer, stopRaf]);
 
-  // ── Derived values ───────────────────────────────────────────────────────────
+  // ── Derived values ────────────────────────────────────────────────────────
+  const fuseProgressPct = smoothPct;           // 0 → 100 (fuse burns up)
+  const timeLeftPct = 100 - smoothPct;     // 100 → 0 (time drains away)
+  const nukeNowSol = (betSol * liveMultiplier).toFixed(3);
 
-  // TIME LEFT bar:  100% → 0%  (drains away)
-  const timeLeftPct   = smoothPct;
-  // FUSE PROGRESS bar: 0% → 100%  (burns toward detonation)
-  const fuseProgressPct = 100 - smoothPct;
-  const nukeNowSol    = (betSol * liveMultiplier).toFixed(3);
+  // ── Dynamic button label — matches HTML exactly ───────────────────────────
+  //   idle    → "💣 ARM BOMB"
+  //   running → "💣 NUKE IT — 1.00x"
+  //   nuked / boom → "💣 ARM AGAIN"
+  const btnLabel = (() => {
+    if (phase === "idle") return "💣  ARM BOMB";
+    if (phase === "running") return `💣  NUKE IT — ${liveMultiplier.toFixed(2)}x`;
+    return "💣  ARM AGAIN";
+  })();
+
+  // ── Terminal lines with live multiplier appended while running ────────────
+  const liveLines = phase === "running"
+    ? [...lines, `fuse burning — ${secondsLeft}s left — nuke now at ${liveMultiplier.toFixed(2)}x or hold!`]
+    : lines;
 
   return (
     <>
       <BitFlipStyle>
         <div className="custom-container">
           <div className="page-links">
-            <a href="/play-bit-flip"       className="bitflip">Bitflip</a>
-            <a href="/play-cache-hunt"     className="cacheundt">CACHEHUNT</a>
-            <a href="/play-pump-loop"      className="pumploop">PUMPLOOP</a>
-            <a href="/play-beat-the-bomb"  className="active beatbomb">BEATBOMB</a>
+            <a href="/play-bit-flip" className="bitflip">Bitflip</a>
+            <a href="/play-cache-hunt" className="cacheundt">CACHEHUNT</a>
+            <a href="/play-pump-loop" className="pumploop">PUMPLOOP</a>
+            <a href="/play-beat-the-bomb" className="active beatbomb">BEATBOMB</a>
           </div>
         </div>
 
@@ -294,19 +273,15 @@ const BeatBomb = () => {
                 <div className="left">
                   <img src={beatbombRedShape} alt="img" className="beatflip-shape shape-left" />
                   <img src={beatbombRedShape} alt="img" className="beatflip-shape shape-right" />
+
                   <div className="terminal">
                     <div ref={terminalRef}>
-                      <Terminal
-                        lines={
-                          activeRoundId
-                            ? [...lines, `live multiplier: ${liveMultiplier.toFixed(2)}x`]
-                            : lines
-                        }
-                      />
+                      <Terminal lines={liveLines} />
                     </div>
                   </div>
 
                   <FuseStatus
+                    phase={phase}
                     secondsLeft={secondsLeft}
                     maxSeconds={FUSE_DURATION}
                     liveMultiplier={liveMultiplier}
@@ -315,20 +290,28 @@ const BeatBomb = () => {
                 </div>
 
                 {/* RIGHT — round info + progress bars */}
-                <div className="right">
+                <div className="right for-desktop">
                   <div className="top">
                     <h6>Round Info</h6>
                     <ul>
-                      <li><span>CURRENT WIN</span> <h4>{liveMultiplier.toFixed(2)}x</h4></li>
-                      <li><span>MAX WIN</span>     <strong>100x</strong></li>
-                      <li><span>YOUR BET</span>    <strong>{betSol.toFixed(4)} SOL</strong></li>
-                      <li><span>NUKE NOW</span>    <strong>{nukeNowSol} SOL</strong></li>
+                      <li>
+                        <span>CURRENT WIN</span>
+                        <h4 style={{ color: phase === "boom" ? "#ff2244" : undefined }}>
+                          {phase === "boom" ? "BOOM" : `${liveMultiplier.toFixed(2)}x`}
+                        </h4>
+                      </li>
+                      <li><span>MAX WIN</span>  <strong>10x</strong></li>
+                      <li><span>YOUR BET</span> <strong>{betSol.toFixed(4)} SOL</strong></li>
+                      <li>
+                        <span>NUKE NOW</span>
+                        <strong>{phase === "boom" ? "0.000 SOL" : `${nukeNowSol} SOL`}</strong>
+                      </li>
                     </ul>
                   </div>
 
                   <div className="bottom">
-                    {/* FUSE PROGRESS — 0 % → 100 % (burns toward boom) */}
-                    <div className="catch-hunt-progress-content">
+                    {/* FUSE PROGRESS — 0% → 100% (burns toward boom) */}
+                    <div className="beatbomb-progress-content">
                       <h6>FUSE PROGRESS</h6>
                       <div className="progress-bar">
                         <div
@@ -342,8 +325,8 @@ const BeatBomb = () => {
                       </div>
                     </div>
 
-                    {/* TIME LEFT — 100 % → 0 % (drains away) */}
-                    <div className="catch-hunt-progress-content">
+                    {/* TIME LEFT — 100% → 0% (drains away) */}
+                    <div className="beatbomb-progress-content">
                       <h6>TIME LEFT</h6>
                       <div className="progress-bar">
                         <div
@@ -352,7 +335,7 @@ const BeatBomb = () => {
                         />
                       </div>
                       <div className="progress-value">
-                        <span>{Math.max(0, Math.ceil(secondsLeft))}s</span>
+                        <span>{Math.max(0, secondsLeft)}s</span>
                         <span>0s BOOM</span>
                       </div>
                     </div>
@@ -361,9 +344,13 @@ const BeatBomb = () => {
 
               </div>
 
-              {/* Range slider */}
+              {/* Range slider — disabled while running */}
               <div className="beatbomb-range-slider">
-                <RangeSlider value={betSol} onChange={setBetSol} />
+                <RangeSlider
+                  value={betSol}
+                  onChange={setBetSol}
+                  disabled={phase === "running"}
+                />
               </div>
 
               {/* CTA button */}
@@ -371,25 +358,71 @@ const BeatBomb = () => {
                 <button
                   className="primary-btn beatbomb-btn lg roll-button hover-btn"
                   onClick={handlePrimaryClick}
-                  disabled={isBusy}
                 >
                   <span className="btn-text">
-                    <span>
-                      {activeRoundId
-                        ? `Cash Out ${liveMultiplier.toFixed(2)}x`
-                        : `💣  NUKE IT — ${liveMultiplier.toFixed(2)}x`}
-                    </span>
-                    <span>
-                      {activeRoundId
-                        ? `Cash Out ${liveMultiplier.toFixed(2)}x`
-                        : `💣  NUKE IT — ${liveMultiplier.toFixed(2)}x`}
-                    </span>
+                    <span>{btnLabel}</span>
+                    <span>{btnLabel}</span>
                   </span>
                   <span className="btn-shape btn-shape1"></span>
                   <span className="btn-shape btn-shape2"></span>
                   <span className="btn-shape btn-shape3"></span>
                   <span className="btn-shape btn-shape4"></span>
                 </button>
+              </div>
+
+              <div className="bit-flip-main-content beatbomb-main-content for-mobile">
+                {/* RIGHT — round info + progress bars */}
+                <div className="right for-mobile">
+                  <div className="top">
+                    <h6>Round Info</h6>
+                    <ul>
+                      <li>
+                        <span>CURRENT WIN</span>
+                        <h4 style={{ color: phase === "boom" ? "#ff2244" : undefined }}>
+                          {phase === "boom" ? "BOOM" : `${liveMultiplier.toFixed(2)}x`}
+                        </h4>
+                      </li>
+                      <li><span>MAX WIN</span>  <strong>10x</strong></li>
+                      <li><span>YOUR BET</span> <strong>{betSol.toFixed(4)} SOL</strong></li>
+                      <li>
+                        <span>NUKE NOW</span>
+                        <strong>{phase === "boom" ? "0.000 SOL" : `${nukeNowSol} SOL`}</strong>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bottom">
+                    {/* FUSE PROGRESS — 0% → 100% (burns toward boom) */}
+                    <div className="beatbomb-progress-content">
+                      <h6>FUSE PROGRESS</h6>
+                      <div className="progress-bar">
+                        <div
+                          className="progress"
+                          style={{ width: `${fuseProgressPct}%` }}
+                        />
+                      </div>
+                      <div className="progress-value">
+                        <span>{Math.round(fuseProgressPct)}%</span>
+                        <span>💥 DETONATES</span>
+                      </div>
+                    </div>
+
+                    {/* TIME LEFT — 100% → 0% (drains away) */}
+                    <div className="beatbomb-progress-content">
+                      <h6>TIME LEFT</h6>
+                      <div className="progress-bar">
+                        <div
+                          className="progress"
+                          style={{ width: `${timeLeftPct}%` }}
+                        />
+                      </div>
+                      <div className="progress-value">
+                        <span>{Math.max(0, secondsLeft)}s</span>
+                        <span>0s BOOM</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
             </div>

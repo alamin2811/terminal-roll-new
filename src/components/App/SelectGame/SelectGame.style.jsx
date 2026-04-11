@@ -36,7 +36,7 @@ const SelectGameStyle = styled.div`
         
     }
     .select-game-inner{
-        padding-top: 40px;
+        padding-top: 25px;
         margin-bottom: -30px;
         h5{
             font-family: Source Code Pro;
@@ -57,7 +57,7 @@ const SelectGameStyle = styled.div`
             position: relative;
             max-width: max-content;
             margin: auto;
-            margin-bottom: 45px;
+            margin-bottom: 25px;
             &::after{
                 content: '';
                 height: 25px;
@@ -75,13 +75,13 @@ const SelectGameStyle = styled.div`
         &-content{
             max-width: 970px;
             margin: auto;
-            padding-bottom: 50px;
+            padding-bottom: 10px;
         }
         &-card{
-            padding: 24px 30px 30px;
+            padding: 23px 30px;
             position: relative;
             background: #121C12;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             &::after{
                 content: '';
                 position: absolute;
@@ -105,13 +105,14 @@ const SelectGameStyle = styled.div`
                 font-weight: 400;
                 font-size: 26px;
                 line-height: 100%;
+                margin-bottom: 0;
             }
             .card-top{
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 20px;
-                margin-bottom: 16px;
+                margin-bottom: 10px;
                 span{
                     font-family: Source Code Pro;
                     font-weight: 500;
@@ -138,7 +139,7 @@ const SelectGameStyle = styled.div`
                 font-weight: 500;
                 font-size: 16px;
                 line-height: 150%;
-                margin-bottom: 25px;
+                margin-bottom: 15px;
 
             }
             .potential{
@@ -173,7 +174,7 @@ const SelectGameStyle = styled.div`
                         position: absolute;
                         left: -15px;
                         top: 12px;
-                        animation: blink 2s infinite;
+                        animation: blink 1.5S infinite;
                     }
                     span{
                         font-family: Source Code Pro;
@@ -198,7 +199,7 @@ const SelectGameStyle = styled.div`
                 font-family: 'screwtop-regular';
                 font-weight: 400;
                 font-size: 18px;
-                margin-top: 24px;
+                margin-top: 10px;
                 .btn-shape{
                     position: absolute;
                     height: 4px;
@@ -259,6 +260,7 @@ const SelectGameStyle = styled.div`
                     .right{
                         &::after{
                             background: #00FFAA;
+                            animation-delay: 1s;
                         }
                     }
                 }
@@ -299,6 +301,7 @@ const SelectGameStyle = styled.div`
                     .right{
                         &::after{
                             background: #00FFAA;
+                            animation-delay: 1.5s;
                         }
                     }
                 }
@@ -334,11 +337,13 @@ const SelectGameStyle = styled.div`
                     .left{
                         h4{
                             color: #FFE600;
+                            
                         }
                     }
                     .right{
                         &::after{
                             background: #FFE600;
+                            animation-delay: 2s;
                         }
                     }
                 }
@@ -379,6 +384,7 @@ const SelectGameStyle = styled.div`
                     .right{
                         &::after{
                             background: #FF2244;
+                            animation-delay: 2.5s;
                         }
                     }
                 }
@@ -397,7 +403,7 @@ const SelectGameStyle = styled.div`
     .select-game-bottom{
         border-top: 1px dashed rgba(255, 255, 255, 0.20);
         margin: 0px -20px;
-        padding: 20px 30px;       
+        padding: 8px 30px;       
         
         h6{
             color: #819E77;
@@ -425,7 +431,10 @@ const SelectGameStyle = styled.div`
     @media only screen and (max-width: 1300px) {
         .select-game{
             &-content{
-                padding-bottom: 30px;
+                padding-bottom: 10px;
+            }
+            &-bottom{
+                padding: 10px 30px;
             }
         }
     }
@@ -439,6 +448,11 @@ const SelectGameStyle = styled.div`
                     gap: 15px;
                     font-size: 14px;
                 }
+            }
+        }
+        .select-game{
+            &-bottom{
+                padding: 6px 30px;
             }
         }
     }
@@ -484,6 +498,9 @@ const SelectGameStyle = styled.div`
                 p{
                     max-width: 320px;
                 }
+            }
+            &-bottom{
+                margin: 0px -15px;
             }
         }
     }

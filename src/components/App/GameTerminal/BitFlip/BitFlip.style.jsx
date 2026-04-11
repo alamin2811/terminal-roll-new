@@ -135,17 +135,19 @@ const BitFlipStyle = styled.div`
         margin-left: -20px;
         width: calc(100% + 20px);
         padding-left: 20px;
+        &.for-mobile{
+            display: none;
+        }
         .left{
             width: 66.67%;
             border-right: 1px dashed rgba(255, 255, 255, 0.20);
-            padding-right: 20px;
             padding-bottom: 20px;
             position: relative;
             .beatflip-shape{
                 position: absolute;
                 top: 0;
                 z-index: 0;
-                width: 70%;
+                width: 60%;
                 &.shape-left{
                     left: -20px;
                     transform: scaleX(-1);
@@ -159,12 +161,16 @@ const BitFlipStyle = styled.div`
                 position: relative;
                 z-index: 11;
                 .terminal-inner{
-                    height: auto;
-                    min-height: 430px;
+                    min-height: 100%;
+                    max-height: calc(100vh - 517px);
                 }
                 .terminal-body{
                     padding-bottom: 0;
+                    
                 }
+            }
+            .bit-flip-content-bottom{
+                padding-right: 20px;
             }
             .chose-btn{
                 height: 100px;
@@ -226,7 +232,10 @@ const BitFlipStyle = styled.div`
             align-items: center;
             justify-content: space-between;
             flex-direction: column;
-            height: 550px;
+            min-height: calc(100vh - 397px);
+            &.for-mobile{
+                display: none;
+            }
             .top{
                 width: 100%;
                 h6{
@@ -416,6 +425,17 @@ const BitFlipStyle = styled.div`
         }
     }
     .cache-hunt-main-content{
+        .left{
+            .terminal{
+                .terminal-inner{
+                    max-height: calc(100vh - 555px);
+                }
+                .terminal-body{
+                    padding-bottom: 0;
+                    
+                }
+            }
+        }
         .terminal-line{
             color: #00FFAA66;
             span{
@@ -429,7 +449,6 @@ const BitFlipStyle = styled.div`
         }
         
         .right {
-            min-height: 586px;
             .top {
                 ul {
                     li {
@@ -447,6 +466,7 @@ const BitFlipStyle = styled.div`
         .catch-nodes{
             position: relative;
             z-index: 11;
+            padding-right: 20px;
             h5{
                 font-family: Source Code Pro;
                 font-weight: 600;
@@ -499,8 +519,10 @@ const BitFlipStyle = styled.div`
                             color: #819E7780;
                             transition: 0.3s;
                         }
-                        &:hover{
+                        &:hover, 
+                        &.miss{
                              border: 1px solid #00FFAA4D;
+                             opacity: 100% !important;
                              h6{
                                 color: #00FFAA;
                              }
@@ -533,7 +555,7 @@ const BitFlipStyle = styled.div`
             border-radius: 0;
             margin-bottom: 8px;
             .progress{
-                background: #00FFAA;
+                background: #00FFAA !important;
                 border-radius: 0;
                 
             }
@@ -604,13 +626,13 @@ const BitFlipStyle = styled.div`
         .left {
             .terminal {
                 .terminal-inner{
-                    min-height: 350px;
+                    min-height: 100%; 
+                    max-height: calc(100vh - 650px);
                 }
             }
         }
         
         .right {
-            min-height: 654px;
             .top {
                 ul {
                     li {
@@ -728,9 +750,15 @@ const BitFlipStyle = styled.div`
                 color: #FF2244;
             }
         }
-        
+        .left{
+            .terminal {
+                .terminal-inner{
+                    max-height: calc(100vh - 580px);
+                }
+            }
+        }
         .right {
-            min-height: 586px;
+            min-height: calc(100vh - 400px);
             .top {
                 ul {
                     li {
@@ -745,7 +773,7 @@ const BitFlipStyle = styled.div`
             }
         }
     }
-    .catch-hunt-progress-content{
+    .beatbomb-progress-content{
         margin-bottom: 20px;
         &:nth-last-child(1){
             margin-bottom: 0;
@@ -817,9 +845,6 @@ const BitFlipStyle = styled.div`
             height: auto;
         }
         .bit-flip-content {
-            .terminal-inner {
-                height: calc(100vh - 260px);
-            }
             ul{
                 margin-top: 16px;
                 li{
@@ -857,14 +882,104 @@ const BitFlipStyle = styled.div`
             }
         }
         .bit-flip-main-content {
-            margin-left: -15px;
+            margin-left: -20px;
             width: calc(100% + 15px);
+            .left{
+                .terminal{
+                    .terminal-inner {
+                        min-height: calc(100vh - 492px);
+                    }
+                }
+                
+            }
+            .right{
+                min-height: calc(100vh - 372px);
+            }
+        }
+        .cache-hunt-main-content{
+            .left{
+                .terminal{
+                    .terminal-inner{
+                        min-height: calc(100vh - 528px);
+                    }
+                }
+            }
+        }
+        
+        .pump-loop-main-content{
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        min-height: 100%; 
+                        max-height: calc(100vh - 625px);
+                    }
+                }
+            }
+        }
+        
+        .beatbomb-main-content{
+            .left{
+                .terminal {
+                    .terminal-inner{
+                        min-height: 100%;
+                        max-height: calc(100vh - 530px);
+                    }
+                }
+            }
+            .right {
+                min-height: calc(100vh - 370px);
+            }
         }
     }
     @media only screen and (max-width: 1200px) {
         .page-links{
             a{
                 height: 28px;
+            }
+        }
+        .bit-flip-main-content {
+            .left{
+                .terminal{
+                    .terminal-inner {
+                        min-height: calc(100vh - 482px);
+                    }
+                }
+                
+            }
+            .right{
+                min-height: calc(100vh - 365px);
+            }
+        }
+        .cache-hunt-main-content{
+            .left{
+                .terminal{
+                    .terminal-inner{
+                        min-height: calc(100vh - 522px);
+                    }
+                }
+            }
+        }
+         .pump-loop-main-content{
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        min-height: 100%; 
+                        max-height: calc(100vh - 625px);
+                    }
+                }
+            }
+        }
+        .beatbomb-main-content{
+            .left{
+                .terminal {
+                    .terminal-inner{
+                        min-height: 100%;
+                        max-height: calc(100vh - 525px);
+                    }
+                }
+            }
+            .right {
+                min-height: calc(100vh - 365px);
             }
         }
     }
@@ -922,6 +1037,49 @@ const BitFlipStyle = styled.div`
                 font-size: 20px;
             }
         }
+        .bit-flip-main-content {
+            margin-left: -15px;
+            width: calc(100% + 15px);
+        }
+        .cache-hunt-main-content{
+            .left{
+                .terminal{
+                    .terminal-inner{
+                        min-height: calc(100vh - 530px);
+                    }
+                }
+            }
+            .right{
+                min-height: calc(100vh - 377px);
+            }
+        }
+        .pump-loop-main-content{
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        min-height: 100%; 
+                        max-height: calc(100vh - 635px);
+                    }
+                }
+            }
+            
+            .right{
+                min-height: calc(100vh - 380px);
+            }
+        }
+        .beatbomb-main-content{
+            .left{
+                .terminal {
+                    .terminal-inner{
+                        min-height: 100%;
+                        max-height: calc(100vh - 540px);
+                    }
+                }
+            }
+            .right {
+                min-height: calc(100vh - 380px);
+            }
+        }
     }
     @media only screen and (max-width: 767px) {
         .page-links{
@@ -935,7 +1093,7 @@ const BitFlipStyle = styled.div`
             }
         }
         .bit-flip-right{
-            margin-top: 20px;
+            margin-top: 10px;
             .balance {
                 flex-direction: row-reverse;
             }
@@ -956,12 +1114,14 @@ const BitFlipStyle = styled.div`
         .bit-flip-left,
         .bit-flip-right{
             h2{
-                font-size: 22px;
+                font-size: 20px;
+                margin-bottom: 5px;
             }
             .balance {
                 margin-bottom: 10px;
                 h3{
                     font-size: 22px;
+                    margin-bottom: 0;
                 }
             }
             p{
@@ -970,6 +1130,10 @@ const BitFlipStyle = styled.div`
         }
         .bit-flip-main-content{
             flex-wrap: wrap-reverse;
+            &.for-mobile{
+                display: block;
+                border-bottom: none;
+            }
             .left{
                 width: 100%;
                 border-top: 1px dashed rgba(255, 255, 255, 0.20);
@@ -996,19 +1160,85 @@ const BitFlipStyle = styled.div`
                 .bottom{
                     margin-top: 20px;
                 }
+                &.for-desktop{
+                    display: none !important;
+                }
+                &.for-mobile{
+                    display: flex !important;
+                    padding-bottom: 0;
+                    border-top: 1px dashed rgba(255, 255, 255, 0.20);
+                    margin-top: 20px;
+                    margin-left: -20px;
+                    padding-left: 20px;
+                    width: calc(100% + 20px);
+                }
             }
             
         }
         
-        
         /* cache-hunt style */
         .bit-flip-main-content {
+            .left{
+                .terminal{
+                    .terminal-inner {
+                        min-height: 100%;
+                        max-height: calc(100vh - 555px);
+                    }
+                }
+            }
+            .right{
+                min-height: auto;
+                .top{
+                    ul{
+                        li{
+                            span, strong{
+                                line-height: 170%;
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        .cache-hunt-main-content{
+            .left{
+                .terminal{
+                    .terminal-inner{
+                        min-height: calc(100vh - 590px);
+                        max-height: calc(100vh - 590px);
+                    }
+                }
+            }
             .right{
                 min-height: auto;
             }
         }
+        .pump-loop-main-content{
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        max-height: calc(100vh - 650px);
+                    }
+                }
+            }
+            
+            .right{
+                min-height: auto;
+            }
+        } 
         
-        
+        .beatbomb-main-content{
+            .left{
+                .terminal {
+                    .terminal-inner{
+                        max-height: calc(100vh - 590px);
+                    }
+                }
+            }
+            .right {
+                min-height: auto;
+            }
+        }
     }
     @media only screen and (max-width: 575px) {
         .page-links{
@@ -1027,12 +1257,45 @@ const BitFlipStyle = styled.div`
                 }
             }
         }
+        .bit-flip-main-content {
+            .left{
+                .terminal{
+                    .terminal-inner {
+                        min-height: 100%;
+                        max-height: calc(100vh - 590px);
+                    }
+                }
+            }
+        }  
         /* cache-hunt style */
         .cache-hunt-main-content {
             .catch-nodes {
                 ul{
                     li{
                         width: 25%;
+                    }
+                }
+            }
+        }
+        
+        .pump-loop-main-content{
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        max-height: calc(100vh - 650px);
+                    }
+                }
+            }
+            
+            .right{
+                min-height: auto;
+            }
+        }
+        .beatbomb-main-content{
+            .left{
+                .terminal {
+                    .terminal-inner{
+                        max-height: calc(100vh - 620px);
                     }
                 }
             }

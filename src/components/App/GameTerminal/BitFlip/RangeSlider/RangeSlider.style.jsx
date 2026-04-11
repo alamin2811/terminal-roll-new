@@ -85,8 +85,9 @@ const RangeSliderStyle = styled.div`
         padding: 1px 6px;
         border-radius: 10px;
         height: 25px;
-        font-size: 16px;
-        font-family: 'screwtop-regular', sans-serif;
+        font-size: 15px;
+        font-family: 'Source Code Pro;', sans-serif;
+        font-weight: 600;
         margin-right: 0px;
       }
     }
@@ -114,8 +115,9 @@ const RangeSliderStyle = styled.div`
       justify-content: space-between;
       font-size: 16px;
       margin-top: 8px;
+      font-weight: 600;
       color: #819E77;
-      font-family: 'screwtop-regular', sans-serif;
+      font-family: 'Source Code Pro;', sans-serif;
     }
 
     

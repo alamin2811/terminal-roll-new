@@ -275,7 +275,7 @@ const BitFlip = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="right">
+                                <div className="right for-desktop">
                                     <div className="top">
                                         <h6>Round Info</h6>
                                         <ul>
@@ -319,10 +319,38 @@ const BitFlip = () => {
                                     <span className="btn-shape btn-shape4"></span>
                                 </button>
                             </div>
-
+                            <div className="bit-flip-main-content for-mobile">
+                                <div className="right for-mobile">
+                                    <div className="top">
+                                        <h6>Round Info</h6>
+                                        <ul>
+                                            <li><span>Your Pick</span> <h4>[ 0 ]</h4></li>
+                                            <li><span>MULTIPLIER</span> <strong>2x</strong></li>
+                                            <li><span>YOUR BET</span> <strong>0.058 SOL</strong></li>
+                                            <li><span>WIN AMOUNT</span> <strong>0.116 SOL</strong></li>
+                                        </ul>
+                                    </div>
+                                    <div className="bottom">
+                                        <h6>LAST 10 FLIPS</h6>
+                                        <ul>
+                                            <li><div className="number active">1</div></li>
+                                            <li><div className="number active">0</div></li>
+                                            <li><div className="number">1</div></li>
+                                            <li><div className="number active">0</div></li>
+                                            <li><div className="number">0</div></li>
+                                            <li><div className="number active">1</div></li>
+                                            <li><div className="number">0</div></li>
+                                            <li><div className="number">1</div></li>
+                                            <li><div className="number active">1</div></li>
+                                            <li><div className="number">0</div></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
             </BitFlipStyle>
 
             {/* INFO POPUP */}

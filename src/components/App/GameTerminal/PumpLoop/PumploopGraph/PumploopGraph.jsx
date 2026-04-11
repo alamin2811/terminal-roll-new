@@ -12,16 +12,20 @@ const TOP_PAD   = 10;
 const LEFT_PAD  = 38;
 const RIGHT_PAD = 10;
 
-// Updated grid levels: 1x, 5x, 10x, 15x
+// Grid shows 1x, 5x, 10x, 15x
+const MAX_VISUAL = 15;
+
 const GRID_LEVELS = [
   { label: "1x",  y: BASELINE },
-  { label: "5x",  y: BASELINE - ((5  - 1) / 15) * (BASELINE - TOP_PAD) },
-  { label: "10x", y: BASELINE - ((10 - 1) / 15) * (BASELINE - TOP_PAD) },
-  { label: "15x", y: BASELINE - ((15 - 1) / 15) * (BASELINE - TOP_PAD) },
+  { label: "5x",  y: BASELINE - ((5  - 1) / (MAX_VISUAL - 1)) * (BASELINE - TOP_PAD) },
+  { label: "10x", y: BASELINE - ((10 - 1) / (MAX_VISUAL - 1)) * (BASELINE - TOP_PAD) },
+  { label: "15x", y: BASELINE - ((15 - 1) / (MAX_VISUAL - 1)) * (BASELINE - TOP_PAD) },
 ];
 
 function multToY(mult) {
-  return BASELINE - ((mult - 1) / 15) * (BASELINE - TOP_PAD);
+  // Clamp so anything above 15x just hits the top
+  const clamped = Math.min(mult, MAX_VISUAL);
+  return BASELINE - ((clamped - 1) / (MAX_VISUAL - 1)) * (BASELINE - TOP_PAD);
 }
 function stepToX(step) {
   return LEFT_PAD + Math.min(step / 120, 1) * (SVG_W - LEFT_PAD - RIGHT_PAD);
@@ -36,7 +40,7 @@ function buildAreaPath(pts) {
   return `${buildLinePath(pts)} L${last.x.toFixed(2)},${BASELINE} L${pts[0].x.toFixed(2)},${BASELINE} Z`;
 }
 
-const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
+const PumploopGraph = ({ phase = "idle", bet = 0.058, onDump, onProgressUpdate, onMultUpdate }) => {
   const timerRef  = useRef(null);
   const pointsRef = useRef([]);
   const stepRef   = useRef(0);
@@ -44,8 +48,11 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
   const multRef   = useRef(1.0);
   const onDumpRef = useRef(onDump);
   const onProgressUpdateRef = useRef(onProgressUpdate);
+  const onMultUpdateRef = useRef(onMultUpdate);
+
   useEffect(() => { onDumpRef.current = onDump; }, [onDump]);
   useEffect(() => { onProgressUpdateRef.current = onProgressUpdate; }, [onProgressUpdate]);
+  useEffect(() => { onMultUpdateRef.current = onMultUpdate; }, [onMultUpdate]);
 
   const [linePath,   setLinePath]   = useState("");
   const [areaPath,   setAreaPath]   = useState("");
@@ -53,6 +60,7 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
   const [multiplier, setMultiplier] = useState("1.00");
   const [footerMult, setFooterMult] = useState("waiting...");
   const [isDumped,   setIsDumped]   = useState(false);
+  const [dumpDotPos, setDumpDotPos] = useState({ x: LEFT_PAD, y: BASELINE });
 
   const clearTimer = () => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
@@ -67,15 +75,19 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
     setLinePath("");
     setAreaPath("");
     setDotPos({ x: LEFT_PAD, y: BASELINE });
+    setDumpDotPos({ x: LEFT_PAD, y: BASELINE });
     setMultiplier("1.00");
     setFooterMult("waiting...");
     setIsDumped(false);
     if (onProgressUpdateRef.current) onProgressUpdateRef.current(1.0);
+    if (onMultUpdateRef.current) onMultUpdateRef.current(1.0);
   };
 
   const showDumpRef = useRef(null);
   showDumpRef.current = () => {
     clearTimer();
+    const lastPt = pointsRef.current[pointsRef.current.length - 1];
+    if (lastPt) setDumpDotPos({ x: lastPt.x, y: lastPt.y });
     setIsDumped(true);
     setMultiplier("DUMP");
     setFooterMult("DUMPED");
@@ -103,8 +115,8 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
     setMultiplier(mStr);
     setFooterMult(mStr + "x");
 
-    // Notify parent of current multiplier for progress bars
     if (onProgressUpdateRef.current) onProgressUpdateRef.current(multRef.current);
+    if (onMultUpdateRef.current) onMultUpdateRef.current(multRef.current);
 
     if (multRef.current >= dumpAtRef.current || stepRef.current > 140) {
       showDumpRef.current();
@@ -114,7 +126,21 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
   const startChartRef = useRef(null);
   startChartRef.current = () => {
     resetAllRef.current();
-    dumpAtRef.current = 1.1 + Math.pow(Math.random(), 0.45) * 14;
+    // Balanced distribution: roughly equal chance of low, mid, high dumps
+    // ~30% chance below 3x, ~40% chance 3x–8x, ~30% chance 8x–20x
+    const r = Math.random();
+    let dumpAt;
+    if (r < 0.30) {
+      // Low: 1.1x – 3x
+      dumpAt = 1.1 + Math.random() * 1.9;
+    } else if (r < 0.70) {
+      // Mid: 3x – 8x
+      dumpAt = 3 + Math.random() * 5;
+    } else {
+      // High: 8x – 20x
+      dumpAt = 8 + Math.random() * 12;
+    }
+    dumpAtRef.current = dumpAt;
     timerRef.current  = setInterval(() => tickRef.current(), 80);
   };
 
@@ -134,7 +160,7 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
       <div className="graph-header">
         <span className="graph-label">MULTIPLIER</span>
         <span className={`multiplier${isDumped ? " dumped" : ""}`}>
-          {isDumped ? "DUMPED" : `${multiplier}`}<span>x</span>
+          {isDumped ? "DUMPED" : multiplier}<span>x</span>
         </span>
       </div>
 
@@ -158,7 +184,7 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
             </filter>
           </defs>
 
-          {/* Grid */}
+          {/* Grid lines */}
           {GRID_LEVELS.map(({ label, y }) => (
             <g key={label}>
               <line
@@ -187,27 +213,22 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
             filter="url(#pl-glow)"
           />
 
-          {/* DUMPED vertical dashed line + label — shown when dumped, using ACCENT #FFE600 */}
+          {/* Dump overlay */}
           {isDumped && (
             <>
-              {/* Vertical dashed line from dot down to baseline */}
               <line
-                x1={dotPos.x}
-                y1={dotPos.y}
-                x2={dotPos.x}
-                y2={BASELINE}
-                stroke={ACCENT}
-                strokeWidth="1.5"
-                strokeDasharray="5 4"
+                x1={dumpDotPos.x} y1={dumpDotPos.y}
+                x2={dumpDotPos.x} y2={BASELINE}
+                stroke={DANGER}
+                strokeWidth="1"
+                strokeDasharray="3 3"
               />
-              {/* DUMPED text label above the dot */}
               <text
-                x={Math.min(dotPos.x + 8, SVG_W - 55)}
-                y={Math.max(dotPos.y - 10, TOP_PAD + 12)}
+                x={Math.min(dumpDotPos.x + 5, SVG_W - 55)}
+                y={14}
                 fontFamily="'Share Tech Mono', monospace"
-                fontSize="11"
-                fontWeight="bold"
-                fill={ACCENT}
+                fontSize="10"
+                fill={DANGER}
                 letterSpacing="1"
               >
                 DUMPED
@@ -215,10 +236,10 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
             </>
           )}
 
-          {/* Moving dot — stays accent color always, turns red on dump */}
+          {/* Moving dot */}
           <circle
-            cx={dotPos.x}
-            cy={dotPos.y}
+            cx={isDumped ? dumpDotPos.x : dotPos.x}
+            cy={isDumped ? BASELINE     : dotPos.y}
             r="5"
             fill={lineColor}
             filter="url(#pl-glow)"
@@ -232,9 +253,10 @@ const PumploopGraph = ({ phase = "idle", onDump, onProgressUpdate }) => {
           {footerMult}
         </span>
       </div>
-      
-      <h6 className="pump-graph-bottom">&gt; payout now: 0.3247 SOL (14.06x)</h6>
-      
+
+      <h6 className="pump-graph-bottom">
+        &gt; payout now: {(bet * parseFloat(multiplier === "DUMP" ? "0" : multiplier || "1")).toFixed(4)} SOL ({multiplier === "DUMP" ? "0.00" : multiplier}x)
+      </h6>
     </PumploopGraphStyle>
   );
 };

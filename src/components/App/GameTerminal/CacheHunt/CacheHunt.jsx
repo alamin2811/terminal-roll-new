@@ -12,6 +12,8 @@ import CacheHuntInfo from './CacheHuntInfo/CacheHuntInfo'
 
 const SPINNER_FRAMES = ["-", "\\", "|", "/"]
 
+const INITIAL_NODES = Array(10).fill('locked')
+
 const CacheHunt = () => {
     const [showInfo, setShowInfo] = useState(false)
     const drawerRef = useRef(null)
@@ -20,20 +22,27 @@ const CacheHunt = () => {
     const spinnerRef = useRef(null)
     const [betSol, setBetSol] = useState(0.0525)
 
+    const [phase, setPhase] = useState('idle')          // 'idle' | 'running' | 'found' | 'lost'
+    const [nodes, setNodes] = useState(INITIAL_NODES)   // 'locked' | 'opened' | 'miss'
+    const [openedCount, setOpenedCount] = useState(0)
+    const [currentMult, setCurrentMult] = useState(1)
+    const cacheAtRef = useRef(null)
+
+    // ── refs to always have latest nodes/openedCount inside async callbacks ──
+    const nodesRef = useRef(INITIAL_NODES)
+    const openedCountRef = useRef(0)
+    const phaseRef = useRef('idle')
+
     const [lines, setLines] = useState([
         `initiating cachehunt.exe`,
         `loading entropy modules`,
         `fetching server seed`,
         `seeding cache grid...`,
-        // `mounting terminal treasury`,
-        // `cache map linked`,
-        // `reward classes loaded`,
-        // `legendary breach chance active`,
-        // `awaiting user input`
     ])
 
     const { userWalletAddress, terminalWallet, refreshTerminalWallet } = useAppPlayer()
 
+    // ── EXISTING helpers (untouched) ─────────────────────────────────────────
     const getTierLabel = (tier) => {
         if (tier === "void") return "VOID CACHE"
         if (tier === "dust") return "DUST CACHE"
@@ -75,6 +84,7 @@ const CacheHunt = () => {
         }
     }
 
+    // ── EXISTING API roll (untouched) ────────────────────────────────────────
     const handleRoll = async () => {
         if (isRolling) return
         setIsRolling(true)
@@ -126,6 +136,127 @@ const CacheHunt = () => {
         }
     }
 
+    // ── reset everything back to idle ────────────────────────────────────────
+    const resetHunt = () => {
+        const fresh = Array(10).fill('locked')
+        nodesRef.current = fresh
+        openedCountRef.current = 0
+        phaseRef.current = 'idle'
+        cacheAtRef.current = null
+        setPhase('idle')
+        setNodes(fresh)
+        setOpenedCount(0)
+        setCurrentMult(1)
+        setLines([
+            `initiating cachehunt.exe`,
+            `loading entropy modules`,
+            `fetching server seed`,
+            `seeding cache grid...`,
+        ])
+    }
+
+    // ── open a specific node by index ────────────────────────────────────────
+    const openSpecificNode = (index) => {
+        if (phaseRef.current !== 'running') return
+        if (nodesRef.current[index] !== 'locked') return
+
+        const newNodes = [...nodesRef.current]
+        const newOpened = openedCountRef.current + 1
+        const newMult = parseFloat((1 + newOpened * 0.9).toFixed(1))
+
+        // sync refs immediately so rapid clicks are safe
+        openedCountRef.current = newOpened
+
+        if (index === cacheAtRef.current) {
+            // ✅ Cache found!
+            newNodes[index] = 'opened'
+            nodesRef.current = newNodes
+            phaseRef.current = 'found'
+
+            setNodes([...newNodes])
+            setOpenedCount(newOpened)
+            setCurrentMult(newMult)
+            setPhase('found')
+            setLines(l => [
+                ...l,
+                `> CACHE FOUND at Node_${String(index + 1).padStart(2, '0')}!`,
+                `> payout: ${(betSol * newMult).toFixed(4)} SOL (${newMult}x)`,
+                `> breach successful`,
+            ])
+            setTimeout(resetHunt, 3500)
+        } else {
+            // ❌ Miss
+            newNodes[index] = 'miss'
+            nodesRef.current = newNodes
+
+            if (newOpened >= 10) {
+                // All nodes exhausted — lost
+                phaseRef.current = 'lost'
+                setNodes([...newNodes])
+                setOpenedCount(newOpened)
+                setCurrentMult(newMult)
+                setPhase('lost')
+                setLines(l => [...l, `> all nodes swept — cache not found. bet lost.`])
+                setTimeout(resetHunt, 3000)
+            } else {
+                setNodes([...newNodes])
+                setOpenedCount(newOpened)
+                setCurrentMult(newMult)
+                setLines(l => [
+                    ...l,
+                    `> Node_${String(index + 1).padStart(2, '0')} — MISS. ${newOpened}/10 swept. current: ${newMult}x`,
+                ])
+            }
+        }
+    }
+
+    // ── open a random locked node ─────────────────────────────────────────────
+    const openRandomNode = () => {
+        const locked = nodesRef.current
+            .map((n, i) => n === 'locked' ? i : -1)
+            .filter(i => i >= 0)
+        if (!locked.length) return
+        const pick = locked[Math.floor(Math.random() * locked.length)]
+        openSpecificNode(pick)
+    }
+
+    // ── main button handler ───────────────────────────────────────────────────
+    const handleStartHunt = () => {
+        if (phase === 'idle') {
+            // Start a new hunt — pick hidden cache node
+            const fresh = Array(10).fill('locked')
+            cacheAtRef.current = Math.floor(Math.random() * 10)
+            nodesRef.current = fresh
+            openedCountRef.current = 0
+            phaseRef.current = 'running'
+            setNodes(fresh)
+            setOpenedCount(0)
+            setCurrentMult(1)
+            setPhase('running')
+            setLines(l => [...l, `> hunt started — opening nodes to find the cache`])
+        } else if (phase === 'running') {
+            // Each click = open one random locked node
+            openRandomNode()
+        } else {
+            // 'found' or 'lost' → reset for next round
+            resetHunt()
+        }
+    }
+
+    // ── derived progress values ───────────────────────────────────────────────
+    const sweepPct = (openedCount / 10) * 100
+    const multPct = ((currentMult - 1) / 9) * 100
+    const cashoutNow = (betSol * currentMult).toFixed(4)
+
+    // ── main button label ─────────────────────────────────────────────────────
+    const mainBtnLabel = phase === 'idle'
+        ? '➤ START HUNT'
+        : phase === 'running'
+            ? '➤ OPEN NODE'
+            : phase === 'found'
+                ? '✔ HUNT AGAIN'
+                : '✖ HUNT AGAIN'
+
     return (
         <>
             <BitFlipStyle>
@@ -141,7 +272,7 @@ const CacheHunt = () => {
                     <div className="custom-container">
                         <div className="bit-flip-inner">
                             <div className="row">
-                                <div className="col-md-6">
+                                <div className="col-lg-6 col-md-7">
                                     <div className="bit-flip-left">
                                         <h2>
                                             Cache Hunt &gt;_
@@ -156,7 +287,7 @@ const CacheHunt = () => {
                                     </div>
                                 </div>
 
-                                <div className="col-md-6">
+                                <div className="col-lg-6 col-md-5">
                                     <div className="bit-flip-right">
                                         <div className="balance">
                                             <button
@@ -189,7 +320,7 @@ const CacheHunt = () => {
                                 <div className="left">
                                     <img src={cacheHuntTealShape} alt="img" className="beatflip-shape shape-left" />
                                     <img src={cacheHuntTealShape} alt="img" className="beatflip-shape shape-right" />
-                                    
+
                                     <div className="terminal">
                                         <Terminal lines={lines} />
                                     </div>
@@ -197,47 +328,57 @@ const CacheHunt = () => {
                                     <div className="catch-nodes">
                                         <h5>CACHE NODES</h5>
                                         <ul>
-                                            <li><button className="catch-nods-btn"><h6>Node_01</h6> <p>Miss</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_02</h6> <p>Miss</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_03</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_04</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_05</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_06</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_07</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_08</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_09</h6> <p>Locked</p></button></li>
-                                            <li><button className="catch-nods-btn"><h6>Node_10</h6> <p>Locked</p></button></li>
+                                            {nodes.map((nodeState, i) => (
+                                                <li key={i}>
+                                                    <button
+                                                        className={`catch-nods-btn${nodeState === 'opened' ? ' found' : nodeState === 'miss' ? ' miss' : ''}`}
+                                                        onClick={() => openSpecificNode(i)}
+                                                        disabled={phase !== 'running' || nodeState !== 'locked'}
+                                                        style={{
+                                                            cursor: phase === 'running' && nodeState === 'locked' ? 'pointer' : 'default',
+                                                            opacity: nodeState !== 'locked' ? 0.6 : 1,
+                                                        }}
+                                                    >
+                                                        <h6>Node_{String(i + 1).padStart(2, '0')}</h6>
+                                                        <p>
+                                                            {nodeState === 'locked' ? 'Locked'
+                                                                : nodeState === 'opened' ? 'Found!'
+                                                                    : 'Miss'}
+                                                        </p>
+                                                    </button>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
                                 </div>
-                                <div className="right">
+                                <div className="right for-desktop">
                                     <div className="top">
                                         <h6>Round Info</h6>
                                         <ul>
-                                            <li><span>CURRENT WIN</span> <h4>2.4x</h4></li>
+                                            <li><span>CURRENT WIN</span> <h4>{currentMult.toFixed(1)}x</h4></li>
                                             <li><span>MAX WIN</span> <strong>10x</strong></li>
-                                            <li><span>YOUR BET</span> <strong>0.058 SOL</strong></li>
-                                            <li><span>IF CASH OUT NOW</span> <strong>0.319 SOL</strong></li>
+                                            <li><span>YOUR BET</span> <strong>{betSol.toFixed(3)} SOL</strong></li>
+                                            <li><span>IF CASH OUT NOW</span> <strong>{cashoutNow} SOL</strong></li>
                                         </ul>
                                     </div>
                                     <div className="bottom">
                                         <div className="catch-hunt-progress-content">
                                             <h6>SWEEP PROGRESS</h6>
                                             <div className="progress-bar">
-                                                <div className="progress w-25"></div>
+                                                <div className="progress" style={{ width: `${sweepPct}%` }}></div>
                                             </div>
                                             <div className="progress-value">
-                                                <span>2/10 NODES</span>
-                                                <span>25%</span>
+                                                <span>{openedCount}/10 NODES</span>
+                                                <span>{sweepPct.toFixed(0)}%</span>
                                             </div>
                                         </div>
                                         <div className="catch-hunt-progress-content">
                                             <h6>MULTIPLIER PROGRESS</h6>
                                             <div className="progress-bar">
-                                                <div className="progress w-30"></div>
+                                                <div className="progress" style={{ width: `${multPct}%` }}></div>
                                             </div>
                                             <div className="progress-value">
-                                                <span>2.4x</span>
+                                                <span>{currentMult.toFixed(1)}x</span>
                                                 <span>MAX 10x</span>
                                             </div>
                                         </div>
@@ -248,19 +389,59 @@ const CacheHunt = () => {
                             <div className="catch-hunt-range-slider">
                                 <RangeSlider value={betSol} onChange={setBetSol} />
                             </div>
-                            
 
                             <div className="terminal-btn">
-                                <button className="primary-btn catch-hunt-main-btn lg roll-button hover-btn" onClick={handleRoll} disabled={isRolling}>
+                                <button
+                                    className="primary-btn catch-hunt-main-btn lg roll-button hover-btn"
+                                    onClick={handleStartHunt}
+                                    disabled={isRolling || phase === 'found' || phase === 'lost'}
+                                >
                                     <span className="btn-text">
-                                        <span>{isRolling ? "Scanning..." : "➤ START HUNT"}</span>
-                                        <span>{isRolling ? "Scanning..." : "➤ START HUNT"}</span>
+                                        <span>{mainBtnLabel}</span>
+                                        <span>{mainBtnLabel}</span>
                                     </span>
                                     <span className="btn-shape btn-shape1"></span>
                                     <span className="btn-shape btn-shape2"></span>
                                     <span className="btn-shape btn-shape3"></span>
                                     <span className="btn-shape btn-shape4"></span>
                                 </button>
+                            </div>
+
+
+                            <div className="bit-flip-main-content cache-hunt-main-content for-mobile">
+                                <div className="right for-mobile">
+                                    <div className="top">
+                                        <h6>Round Info</h6>
+                                        <ul>
+                                            <li><span>CURRENT WIN</span> <h4>{currentMult.toFixed(1)}x</h4></li>
+                                            <li><span>MAX WIN</span> <strong>10x</strong></li>
+                                            <li><span>YOUR BET</span> <strong>{betSol.toFixed(3)} SOL</strong></li>
+                                            <li><span>IF CASH OUT NOW</span> <strong>{cashoutNow} SOL</strong></li>
+                                        </ul>
+                                    </div>
+                                    <div className="bottom">
+                                        <div className="catch-hunt-progress-content">
+                                            <h6>SWEEP PROGRESS</h6>
+                                            <div className="progress-bar">
+                                                <div className="progress" style={{ width: `${sweepPct}%` }}></div>
+                                            </div>
+                                            <div className="progress-value">
+                                                <span>{openedCount}/10 NODES</span>
+                                                <span>{sweepPct.toFixed(0)}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="catch-hunt-progress-content">
+                                            <h6>MULTIPLIER PROGRESS</h6>
+                                            <div className="progress-bar">
+                                                <div className="progress" style={{ width: `${multPct}%` }}></div>
+                                            </div>
+                                            <div className="progress-value">
+                                                <span>{currentMult.toFixed(1)}x</span>
+                                                <span>MAX 10x</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

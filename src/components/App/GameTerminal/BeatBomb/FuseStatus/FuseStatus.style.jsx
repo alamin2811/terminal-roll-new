@@ -4,6 +4,7 @@ import styled from "styled-components";
 const FuseStatusStyle = styled.div`
     position: relative;
     z-index: 11;
+    padding-right: 20px;
     h6{
         font-family: Source Code Pro;
         font-weight: 600;
@@ -74,7 +75,7 @@ const FuseStatusStyle = styled.div`
         border: 1px solid #FF224433;
         padding: 10px 15px;
         ul{
-            margin: 0;
+            margin: 0 !important;
             padding: 0;
             li{
                 display: flex;

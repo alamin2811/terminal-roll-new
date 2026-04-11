@@ -3,6 +3,7 @@ import styled from "styled-components";
 const PumploopGraphStyle = styled.div`
   position: relative;
   z-index: 11;
+  padding-right: 20px;
   .graph-header {
     display: flex;
     justify-content: space-between;
@@ -40,11 +41,16 @@ const PumploopGraphStyle = styled.div`
 
   .canvas-wrapper {
     position: relative;
-    height: 180px;
+    height: 130px;
     background: #FFE6000D;
     border: 1px solid #FFE6001A;
     border-radius: 4px;
     padding: 14px 14px 8px 14px;
+    svg{
+      text{
+        font-size: 16px;
+      }
+    }
   }
 
   svg {

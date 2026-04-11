@@ -84,33 +84,33 @@ const CacheHuntInfoStyle = styled.div`
                 }
             }
             h2{
-                font-size: 30px;
-                color: #FFF;
+                font-size: 26px;
+                color: #FFE600;
                 margin-bottom: 15px;
             }
             h3{
-                font-size: 22px;
-                color: #FFF;
+                font-size: 20px;
+                color: #FFE600;
                 margin-bottom: 15px;
             }
             p{
-                font-size: 16px;
-                color: #FFF;
-                margin-bottom: 30px;
-                line-height: 170%;
+                font-size: 15px;
+                color: #819E77;
+                margin-bottom: 20px;
+                line-height: 25px;
             }
             ul{
                 list-style: none;
                 padding: 0;
                 margin: 0;
-                margin-bottom: 30px;
+                margin-bottom: 20px;
                 li{
-                    font-size: 16px;
-                    color: #FFF;
-                    margin-bottom: 10px;
+                    font-size: 15px;
+                    color: #819E77;
+                    margin-bottom: 5px;
                     position: relative;
                     padding-left: 20px;
-                    line-height: 170%;
+                    line-height: 25px;
                     font-family: "Source Code Pro", monospace;
                     &::after{
                         content: '';
@@ -119,7 +119,7 @@ const CacheHuntInfoStyle = styled.div`
                         width: 8px;
                         left: 0px;
                         top: 11px;
-                        background: rgba(68, 255, 2,0.4);
+                        background: #FFE600;
                     }
                 }
             }
