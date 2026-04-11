@@ -254,12 +254,12 @@ const SelectGameStyle = styled.div`
                 .potential{
                     .left{
                         h4{
-                            color: #00FFAA;
+                            color: #44FF02;
                         }
                     }
                     .right{
                         &::after{
-                            background: #00FFAA;
+                            background: #44FF02;
                             animation-delay: 1s;
                         }
                     }
