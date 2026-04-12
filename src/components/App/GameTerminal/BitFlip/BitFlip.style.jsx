@@ -17,7 +17,7 @@ const BitFlipStyle = styled.div`
     .bit-flip-left{
         h2{
             font-size: 30px;
-            margin-bottom: 10px;
+            margin-bottom: 17px;
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -162,7 +162,7 @@ const BitFlipStyle = styled.div`
                 z-index: 11;
                 .terminal-inner{
                     min-height: 100%;
-                    max-height: calc(100vh - 517px);
+                    max-height: calc(100vh - 527px);
                 }
                 .terminal-body{
                     padding-bottom: 0;
@@ -232,7 +232,7 @@ const BitFlipStyle = styled.div`
             align-items: center;
             justify-content: space-between;
             flex-direction: column;
-            min-height: calc(100vh - 397px);
+            min-height: calc(100vh - 404px);
             &.for-mobile{
                 display: none;
             }
@@ -428,7 +428,7 @@ const BitFlipStyle = styled.div`
         .left{
             .terminal{
                 .terminal-inner{
-                    max-height: calc(100vh - 555px);
+                    max-height: calc(100vh - 560px);
                 }
                 .terminal-body{
                     padding-bottom: 0;
@@ -498,6 +498,7 @@ const BitFlipStyle = styled.div`
                         align-items: center;
                         justify-content: center;
                         flex-direction: column;
+                        padding-top: 4px;
                         h6{
                             font-family: Source Code Pro;
                             font-weight: 500;
@@ -627,7 +628,7 @@ const BitFlipStyle = styled.div`
             .terminal {
                 .terminal-inner{
                     min-height: 100%; 
-                    max-height: calc(100vh - 650px);
+                    max-height: calc(100vh - 657px);
                 }
             }
         }
@@ -753,7 +754,7 @@ const BitFlipStyle = styled.div`
         .left{
             .terminal {
                 .terminal-inner{
-                    max-height: calc(100vh - 580px);
+                    max-height: calc(100vh - 558px);
                 }
             }
         }
@@ -868,9 +869,6 @@ const BitFlipStyle = styled.div`
         }
         .bit-flip-left,
         .bit-flip-right{
-            h2{
-                margin-bottom: 10px;
-            }
             .balance {
                 margin-bottom: 18px;
                 h3{
@@ -1040,6 +1038,16 @@ const BitFlipStyle = styled.div`
         .bit-flip-main-content {
             margin-left: -15px;
             width: calc(100% + 15px);
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        min-height: calc(100vh - 495px);
+                    }
+                }
+            }
+            .right{
+                min-height: calc(100vh - 376px);
+            }
         }
         .cache-hunt-main-content{
             .left{
@@ -1126,6 +1134,8 @@ const BitFlipStyle = styled.div`
             }
             p{
                 font-size: 15px;
+                
+                line-height: 24px;
             }
         }
         .bit-flip-main-content{
@@ -1271,8 +1281,10 @@ const BitFlipStyle = styled.div`
         .cache-hunt-main-content {
             .catch-nodes {
                 ul{
+                    row-gap: 10px;
                     li{
                         width: 25%;
+                        padding: 0px 5px;
                     }
                 }
             }
@@ -1308,7 +1320,11 @@ const BitFlipStyle = styled.div`
             .catch-nodes {
                 ul{
                     li{
-                        width: 33.33%;
+                        .catch-nods-btn {
+                            h6{
+                                font-size: 12px;
+                            }
+                        }
                     }
                 }
             }
@@ -1333,6 +1349,79 @@ const BitFlipStyle = styled.div`
             }
         }
     } */
+    
+    @media screen and (max-height: 800px) {
+        .bit-flip-main-content {
+            .left {
+                .terminal {
+                    .terminal-inner{
+                        min-height: 330px !important;
+                        max-height: 330px !important;
+                    }
+                }
+            }
+            .right{
+                min-height: 450px !important;
+                max-height: 450px !important;
+            }
+            &.cache-hunt-main-content{
+                .right{
+                    min-height: 480px !important;
+                    max-height: 480px !important;
+                }
+            }
+        }
+    }
+    @media screen and (max-height: 850px) {
+        .bit-flip-main-content {
+            &.pump-loop-main-content {
+                .left {
+                    .terminal {
+                        .terminal-inner{
+                            min-height: 300px !important;
+                            max-height: 300px !important;
+                        }
+                    }
+                }
+                .right{
+                    min-height: 550px !important;
+                    max-height: 550px !important;
+                }
+            }
+            &.beatbomb-main-content {
+                .left {
+                    .terminal {
+                        .terminal-inner{
+                            min-height: 300px !important;
+                            max-height: 300px !important;
+                        }
+                    }
+                }
+                .right{
+                    min-height: 455px !important;
+                    max-height: 455px !important;
+                }
+            }
+        }
+    }
+    
+    @media only screen and (max-width: 767px) {
+        .bit-flip-main-content {
+            .right{
+                min-height: auto !important;
+                max-height: auto !important;
+            }
+             &.cache-hunt-main-content,
+             &.pump-loop-main-content,
+             &.beatbomb-main-content {
+                .right{
+                    min-height: auto !important;
+                    max-height: auto !important;
+                }
+             }
+        }
+    }
+    
     
 `;
 export default BitFlipStyle;

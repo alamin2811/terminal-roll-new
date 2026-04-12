@@ -185,6 +185,8 @@ const PumpLoop = () => {
                         <div className="bit-flip-content">
                             <div className="bit-flip-main-content pump-loop-main-content">
                                 <div className="left">
+                                    <img src={pumploopYellowShape} alt="img" className="beatflip-shape shape-left" />
+                                    <img src={pumploopYellowShape} alt="img" className="beatflip-shape shape-right" />
                                     <div className="terminal">
                                         <Terminal lines={lines} />
                                     </div>

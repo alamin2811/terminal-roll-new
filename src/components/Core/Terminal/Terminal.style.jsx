@@ -13,7 +13,7 @@ const TerminalStyle = styled.div`
   }
 
   .terminal-body {
-    height: 100%;
+    height: calc(100% - 20px);
     overflow-y: auto;
     padding: 16px 20px 0px 20px;
     overflow-x: hidden;

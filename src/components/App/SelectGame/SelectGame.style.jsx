@@ -402,6 +402,7 @@ const SelectGameStyle = styled.div`
     
     .select-game-bottom{
         border-top: 1px dashed rgba(255, 255, 255, 0.20);
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.20);
         margin: 0px -20px;
         padding: 8px 30px;       
         
